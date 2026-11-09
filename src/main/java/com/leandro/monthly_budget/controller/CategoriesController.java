@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.leandro.monthly_budget.model.entities.Category;
+import com.leandro.monthly_budget.controller.mappers.CategoryMapper;
+import com.leandro.monthly_budget.controller.requests.CategoryRequest;
+import com.leandro.monthly_budget.controller.responses.CategoryResponse;
 import com.leandro.monthly_budget.model.enums.CategoryType;
 import com.leandro.monthly_budget.model.repositories.CategoryRepository;
 
@@ -30,38 +32,43 @@ import jakarta.validation.constraints.Min;
 public class CategoriesController {
 
 	private CategoryRepository repository;
+	private CategoryMapper mapper;
 
-	public CategoriesController(CategoryRepository repository) {
+	public CategoriesController(CategoryRepository repository, CategoryMapper mapper) {
 		super();
 		this.repository = repository;
+		this.mapper = mapper;
 	}
 
 	@GetMapping
-	public Page<Category> getAll(@RequestParam(defaultValue = "1") @Min(1) int page,
+	public Page<CategoryResponse> getAll(@RequestParam(defaultValue = "1") @Min(1) int page,
 			@RequestParam(defaultValue = "20") @Min(1) @Max(50) int size,
 			@RequestParam(required = false) CategoryType type) {
 
 		Pageable pageable = PageRequest.of(page - 1, size);
-		return (type == null) 
+		var categories = (type == null) 
 				? repository.findAll(pageable) 
 				: repository.findByType(type, pageable);
+		
+		return categories.map(mapper::toResponse);
 	}
 
 	@GetMapping("/{id}")
-	public Category getById(@PathVariable @Min(1) long id) {
+	public CategoryResponse getById(@PathVariable @Min(1) long id) {
 
 		return repository.findById(id)
+				.map(record -> mapper.toResponse(record))
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 	}
 
 	@PostMapping	
-	public ResponseEntity<Category> create(@Valid @RequestBody Category entity) {
+	public ResponseEntity<CategoryResponse> create(@Valid @RequestBody CategoryRequest request) {
 
-		if (repository.existsByNameAndType(entity.getName(), entity.getType())) {
+		if (repository.existsByNameAndType(request.getName(), request.getType())) {
 			throw new ResponseStatusException(HttpStatus.CONFLICT, "Already exists a category with this name and type");
-		}
+		}				
 		
-		var created = repository.save(entity);
+		var created = repository.save(mapper.toEntity(request));
 		var location = ServletUriComponentsBuilder
 				.fromCurrentRequest()
 				.path("/{id}")
@@ -70,18 +77,18 @@ public class CategoriesController {
 		
 		return ResponseEntity
 				.created(location)
-				.body(created);
+				.body(mapper.toResponse(created));
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<Category> update(@PathVariable Long id, @Valid @RequestBody Category entity) {
+	public ResponseEntity<CategoryResponse> update(@PathVariable Long id, @Valid @RequestBody CategoryRequest entity) {
 
 		return repository.findById(id).map(record -> {
 			record.setName(entity.getName());
 			record.setType(entity.getType());
 
 			var updated = repository.save(record);
-			return ResponseEntity.ok().body(updated);
+			return ResponseEntity.ok().body(mapper.toResponse(updated));
 
 		}).orElse(ResponseEntity.notFound().build());
 	}
