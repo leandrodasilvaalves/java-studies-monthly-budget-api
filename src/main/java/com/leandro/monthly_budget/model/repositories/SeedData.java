@@ -4,12 +4,39 @@ import java.util.List;
 
 import com.leandro.monthly_budget.model.entities.Category;
 import com.leandro.monthly_budget.model.entities.Subcategory;
+import com.leandro.monthly_budget.model.entities.Tag;
 import com.leandro.monthly_budget.model.enums.CategoryType;
 
 public class SeedData {
 
-	public static void init(CategoryRepository repository) {
+	public static void init(
+			CategoryRepository categoryRepository,
+			TagRepository tagRepository) {
 
+		incluirCategorias(categoryRepository);
+		incluirTags(tagRepository);
+
+	}
+	
+	private static void incluirTags(TagRepository repository) {
+		
+		if(repository.findAll().size() <=0) {
+			List.of(
+				new Tag("amortização-caixa"),
+				new Tag("renda+2045"),
+				new Tag("caixinha-feliz-saida"),
+				new Tag("caixinha-feliz-isa"),
+				new Tag("leandro-40-anos"),
+				new Tag("projeto-garagem"),
+				new Tag("cc-recorrente")
+			).forEach(tag ->{
+				repository.save(tag);
+				System.out.println(tag);
+			});
+		}
+	}
+	
+	private static void incluirCategorias(CategoryRepository repository) {
 		if (repository.findAll().size() <= 0) {
 
 			var receitasFixas = new Category("💰 Receitas Fixas", CategoryType.Income);
@@ -45,7 +72,6 @@ public class SeedData {
 			repository.save(despesasPessoais);	
 			repository.save(investimentos);	
 		}
-
 	}
 	
 	private static void incluirSubcategoriasEmReceitasFixas(Category receitasFixas)
