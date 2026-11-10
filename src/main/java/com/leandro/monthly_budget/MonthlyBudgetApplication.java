@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import com.leandro.monthly_budget.model.repositories.CategoryRepository;
 import com.leandro.monthly_budget.model.repositories.SeedData;
+import com.leandro.monthly_budget.model.repositories.TagRepository;
 
 @SpringBootApplication
 @EnableJpaAuditing
@@ -18,9 +19,11 @@ public class MonthlyBudgetApplication {
 	}
 	
 	@Bean
-	CommandLineRunner init(CategoryRepository repository) {
+	CommandLineRunner init(
+			CategoryRepository categoryRepository,
+			TagRepository tagRepository) {
 		return args ->{
-			SeedData.init(repository);
+			SeedData.init(categoryRepository,tagRepository);
 		};
 	}
 }
