@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import com.leandro.monthly_budget.controller.mappers.CategoryMapper;
 import com.leandro.monthly_budget.controller.requests.CategoryRequest;
 import com.leandro.monthly_budget.controller.responses.CategoryResponse;
@@ -69,14 +67,9 @@ public class CategoriesController {
 		}				
 		
 		var created = repository.save(mapper.toEntity(request));
-		var location = ServletUriComponentsBuilder
-				.fromCurrentRequest()
-				.path("/{id}")
-				.buildAndExpand(created.getId())
-				.toUri();
 		
 		return ResponseEntity
-				.created(location)
+				.created(null)
 				.body(mapper.toResponse(created));
 	}
 
