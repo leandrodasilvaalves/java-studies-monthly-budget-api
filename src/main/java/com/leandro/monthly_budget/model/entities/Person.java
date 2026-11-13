@@ -20,7 +20,7 @@ public class Person extends EntityBase {
 		this.name = name;
 	}
 	
-	@Column(length = 80, unique = true)
+	@Column(nullable = false, length = 80, unique = true)
 	private String name;
 
 	private boolean active = true;
