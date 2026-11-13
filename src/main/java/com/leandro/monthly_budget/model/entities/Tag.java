@@ -19,7 +19,7 @@ public class Tag extends EntityBase{
 		this.name = name;
 	}
 
-	@Column(unique = true, length = 50)
+	@Column(nullable = false, unique = true, length = 50)
 	private String name;	
 	
 	private boolean active = true;
