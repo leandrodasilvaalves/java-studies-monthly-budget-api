@@ -12,6 +12,12 @@ public interface CategoryRepository extends JpaRepository<Category, Long>{
 	@Query("SELECT c FROM Category c WHERE c.type = :type")
 	Page<Category> findByType(CategoryType type, Pageable pageable);
 	
+	@Query("SELECT c FROM Category c WHERE c.active = :active")
+	Page<Category> findAllByStatus(boolean active, Pageable pageable);
+	
+	@Query("SELECT c FROM Category c WHERE c.type = :type AND c.active = :active")
+	Page<Category> findByTypeAndStatus(CategoryType type, boolean active, Pageable pageable);
+	
 	@Query("SELECT COUNT(c) > 0 FROM Category c WHERE c.name = :name AND c.type = :type")
 	boolean existsByNameAndType(String name, CategoryType type);
 }

@@ -11,4 +11,5 @@ public class SubcategoryResponse {
 	private Long id;
 	private String name;
 	private CategoryResponse category;
+	private boolean active;
 }

@@ -21,10 +21,18 @@ import lombok.NoArgsConstructor;
 ))
 public class Subcategory extends EntityBase {
 
+	public Subcategory(String name, Category category) {
+		super();
+		this.name = name;
+		this.category = category;
+	}
+
 	@Column(nullable = false, length = 60)
 	private String name;
 
 	@ManyToOne
 	@JoinColumn(name = "category_id", nullable = false)
 	private Category category;
+
+	private boolean active = true;
 }

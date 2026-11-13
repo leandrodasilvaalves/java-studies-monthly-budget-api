@@ -49,4 +49,6 @@ public class Category extends EntityBase{
 	)
 	private List<Subcategory> subcategories;    
 	
+	private boolean active = true;
+	
 }

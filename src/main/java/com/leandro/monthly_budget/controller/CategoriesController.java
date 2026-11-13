@@ -5,8 +5,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import com.leandro.monthly_budget.controller.mappers.CategoryMapper;
 import com.leandro.monthly_budget.controller.requests.CategoryRequest;
+import com.leandro.monthly_budget.controller.requests.enums.StatusRequest;
 import com.leandro.monthly_budget.controller.responses.CategoryResponse;
 import com.leandro.monthly_budget.model.enums.CategoryType;
 import com.leandro.monthly_budget.model.repositories.CategoryRepository;
@@ -41,12 +42,21 @@ public class CategoriesController {
 	@GetMapping
 	public Page<CategoryResponse> getAll(@RequestParam(defaultValue = "1") @Min(1) int page,
 			@RequestParam(defaultValue = "20") @Min(1) @Max(50) int size,
-			@RequestParam(required = false) CategoryType type) {
+			@RequestParam(required = false) CategoryType type,
+			@RequestParam(defaultValue = "ALL") StatusRequest status) {
 
 		Pageable pageable = PageRequest.of(page - 1, size);
-		var categories = (type == null) 
-				? repository.findAll(pageable) 
-				: repository.findByType(type, pageable);
+		var categories = switch (status) {
+			case ALL -> (type == null)
+					? repository.findAll(pageable)
+					: repository.findByType(type, pageable);
+			case ACTIVE -> (type == null)
+					? repository.findAllByStatus(true, pageable)
+					: repository.findByTypeAndStatus(type, true, pageable);
+			case INACTIVE -> (type == null)
+					? repository.findAllByStatus(false, pageable)
+					: repository.findByTypeAndStatus(type, false, pageable);
+		};
 		
 		return categories.map(mapper::toResponse);
 	}
@@ -86,13 +96,26 @@ public class CategoriesController {
 		}).orElse(ResponseEntity.notFound().build());
 	}
 
-	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> delete(@PathVariable Long id) {
+	@PatchMapping("/{id}/activate")
+	public ResponseEntity<CategoryResponse> activate(@PathVariable long id) {
 
 		return repository.findById(id).map(record -> {
 
-			repository.deleteById(record.getId());
-			return ResponseEntity.noContent().<Void>build();
+			record.setActive(true);
+			var updated = repository.save(record);
+			return ResponseEntity.ok().body(mapper.toResponse(updated));
+
+		}).orElse(ResponseEntity.notFound().build());
+	}
+
+	@PatchMapping("/{id}/inactivate")
+	public ResponseEntity<CategoryResponse> inactivate(@PathVariable long id) {
+
+		return repository.findById(id).map(record -> {
+
+			record.setActive(false);
+			var updated = repository.save(record);
+			return ResponseEntity.ok().body(mapper.toResponse(updated));
 
 		}).orElse(ResponseEntity.notFound().build());
 	}

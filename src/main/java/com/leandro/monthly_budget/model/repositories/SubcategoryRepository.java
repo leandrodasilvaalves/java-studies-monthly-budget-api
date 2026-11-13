@@ -20,4 +20,10 @@ public interface SubcategoryRepository extends JpaRepository<Subcategory, Long>{
 	
 	@Query("SELECT s FROM Subcategory s WHERE s.category.id = :categoryId ORDER BY s.id")
 	Page<Subcategory> findAllByCategory(@Param("categoryId") Long categoryId, Pageable pageable);
+	
+	@Query("SELECT s FROM Subcategory s WHERE s.category.id = :categoryId AND s.active = :active ORDER BY s.id")
+	Page<Subcategory> findAllByCategoryAndStatus(
+			@Param("categoryId") Long categoryId, 
+			@Param("active") boolean active, 
+			Pageable pageable);
 }
