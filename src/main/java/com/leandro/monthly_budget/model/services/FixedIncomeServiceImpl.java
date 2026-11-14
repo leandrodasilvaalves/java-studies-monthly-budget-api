@@ -14,6 +14,7 @@ import com.leandro.monthly_budget.model.entities.FixedIncome;
 import com.leandro.monthly_budget.model.entities.Person;
 import com.leandro.monthly_budget.model.entities.Subcategory;
 import com.leandro.monthly_budget.model.entities.Tag;
+import com.leandro.monthly_budget.model.enums.CategoryType;
 import com.leandro.monthly_budget.model.exceptions.BusinessRuleException;
 import com.leandro.monthly_budget.model.exceptions.ResourceNotFoundException;
 import com.leandro.monthly_budget.model.mappers.FixedIncomeMapper;
@@ -155,8 +156,16 @@ public class FixedIncomeServiceImpl implements FixedIncomeService {
 	}
 
 	private Category findCategory(Long id) {
-		return categoryRepository.findById(id)
+
+		var category = categoryRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+
+		if (category.getType() != CategoryType.Income) {
+			throw new BusinessRuleException(
+					"Category type must be Income for fixed incomes");
+		}
+
+		return category;
 	}
 
 	private Subcategory findSubcategory(Long id, Category category) {
