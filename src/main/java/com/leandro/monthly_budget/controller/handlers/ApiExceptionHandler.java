@@ -29,6 +29,10 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.leandro.monthly_budget.model.exceptions.BusinessRuleException;
+import com.leandro.monthly_budget.model.exceptions.DuplicateResourceException;
+import com.leandro.monthly_budget.model.exceptions.ResourceNotFoundException;
+
 /**
  * Contrato de erro da API (RFC 9457 / {@link ProblemDetail}).
  *
@@ -84,6 +88,21 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return problem(HttpStatus.CONFLICT, "Data conflict",
                 "The operation violates a database constraint.");
     }
+    
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ProblemDetail onNotFound(ResourceNotFoundException ex) {
+    	return problem(HttpStatus.NOT_FOUND, "Resource Not Found", ex.getMessage());
+    }
+    
+    @ExceptionHandler(BusinessRuleException.class)
+    public ProblemDetail onBusinessRuleException(BusinessRuleException ex) {
+    	return problem(HttpStatus.BAD_REQUEST, "Business Rule Error", ex.getMessage());
+    }
+    
+    @ExceptionHandler(DuplicateResourceException.class)
+    ProblemDetail onDuplicateName(DuplicateResourceException ex) { 
+    	return problem(HttpStatus.CONFLICT, "Duplicate Resource Error", ex.getMessage());
+    } 
 
     // ---------- helpers ----------
 

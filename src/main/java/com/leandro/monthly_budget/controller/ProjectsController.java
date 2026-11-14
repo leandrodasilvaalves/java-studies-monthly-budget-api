@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.leandro.monthly_budget.controller.mappers.ProjectMapper;
-import com.leandro.monthly_budget.controller.requests.ProjectRequest;
-import com.leandro.monthly_budget.controller.requests.enums.StatusRequest;
-import com.leandro.monthly_budget.controller.responses.ProjectResponse;
+import com.leandro.monthly_budget.model.dtos.requests.ProjectRequest;
+import com.leandro.monthly_budget.model.dtos.requests.enums.StatusRequest;
+import com.leandro.monthly_budget.model.dtos.responses.ProjectResponse;
+import com.leandro.monthly_budget.model.mappers.ProjectMapper;
 import com.leandro.monthly_budget.model.services.interfaces.ProjectService;
 
 import jakarta.validation.Valid;

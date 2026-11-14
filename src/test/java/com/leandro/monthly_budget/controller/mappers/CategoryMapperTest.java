@@ -5,9 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
-import com.leandro.monthly_budget.controller.requests.CategoryRequest;
+import com.leandro.monthly_budget.model.dtos.requests.CategoryRequest;
 import com.leandro.monthly_budget.model.entities.Category;
 import com.leandro.monthly_budget.model.enums.CategoryType;
+import com.leandro.monthly_budget.model.mappers.CategoryMapper;
 
 class CategoryMapperTest {
 

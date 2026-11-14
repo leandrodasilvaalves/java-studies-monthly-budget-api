@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.leandro.monthly_budget.controller.mappers.CreditCardMapper;
-import com.leandro.monthly_budget.controller.requests.CreditCardRequest;
-import com.leandro.monthly_budget.controller.requests.enums.StatusRequest;
-import com.leandro.monthly_budget.controller.responses.CreditCardResponse;
+import com.leandro.monthly_budget.model.dtos.requests.CreditCardRequest;
+import com.leandro.monthly_budget.model.dtos.requests.enums.StatusRequest;
+import com.leandro.monthly_budget.model.dtos.responses.CreditCardResponse;
+import com.leandro.monthly_budget.model.mappers.CreditCardMapper;
 import com.leandro.monthly_budget.model.repositories.CreditCardRepository;
 
 import jakarta.validation.constraints.Max;

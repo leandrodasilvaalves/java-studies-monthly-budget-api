@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.leandro.monthly_budget.controller.mappers.AccountMapper;
-import com.leandro.monthly_budget.controller.requests.AccountCreateRequest;
-import com.leandro.monthly_budget.controller.requests.AccountUpdateRequest;
-import com.leandro.monthly_budget.controller.requests.enums.StatusRequest;
-import com.leandro.monthly_budget.controller.responses.AccountResponse;
+import com.leandro.monthly_budget.model.dtos.requests.AccountCreateRequest;
+import com.leandro.monthly_budget.model.dtos.requests.AccountUpdateRequest;
+import com.leandro.monthly_budget.model.dtos.requests.enums.StatusRequest;
+import com.leandro.monthly_budget.model.dtos.responses.AccountResponse;
+import com.leandro.monthly_budget.model.mappers.AccountMapper;
 import com.leandro.monthly_budget.model.repositories.AccountRepository;
 
 import jakarta.validation.constraints.Max;

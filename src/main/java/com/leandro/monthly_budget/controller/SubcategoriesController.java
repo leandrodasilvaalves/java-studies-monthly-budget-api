@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.leandro.monthly_budget.controller.mappers.SubcategoryMapper;
-import com.leandro.monthly_budget.controller.requests.SubcategoryRequest;
-import com.leandro.monthly_budget.controller.requests.enums.StatusRequest;
-import com.leandro.monthly_budget.controller.responses.SubcategoryResponse;
+import com.leandro.monthly_budget.model.dtos.requests.SubcategoryRequest;
+import com.leandro.monthly_budget.model.dtos.requests.enums.StatusRequest;
+import com.leandro.monthly_budget.model.dtos.responses.SubcategoryResponse;
+import com.leandro.monthly_budget.model.mappers.SubcategoryMapper;
 import com.leandro.monthly_budget.model.repositories.CategoryRepository;
 import com.leandro.monthly_budget.model.repositories.SubcategoryRepository;
 
