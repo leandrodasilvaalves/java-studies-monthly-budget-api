@@ -6,7 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
+import com.leandro.monthly_budget.model.repositories.AccountRepository;
 import com.leandro.monthly_budget.model.repositories.CategoryRepository;
+import com.leandro.monthly_budget.model.repositories.PersonRepository;
 import com.leandro.monthly_budget.model.repositories.SeedData;
 import com.leandro.monthly_budget.model.repositories.TagRepository;
 
@@ -21,9 +23,11 @@ public class MonthlyBudgetApplication {
 	@Bean
 	CommandLineRunner init(
 			CategoryRepository categoryRepository,
-			TagRepository tagRepository) {
+			TagRepository tagRepository,
+			PersonRepository personRepository,
+			AccountRepository accountRepository) {
 		return args ->{
-			SeedData.init(categoryRepository,tagRepository);
+			SeedData.init(categoryRepository, tagRepository, personRepository, accountRepository);
 		};
 	}
 }

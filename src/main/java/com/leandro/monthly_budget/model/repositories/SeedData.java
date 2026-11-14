@@ -1,8 +1,11 @@
 package com.leandro.monthly_budget.model.repositories;
 
+import java.math.BigDecimal;
 import java.util.List;
 
+import com.leandro.monthly_budget.model.entities.Account;
 import com.leandro.monthly_budget.model.entities.Category;
+import com.leandro.monthly_budget.model.entities.Person;
 import com.leandro.monthly_budget.model.entities.Subcategory;
 import com.leandro.monthly_budget.model.entities.Tag;
 import com.leandro.monthly_budget.model.enums.CategoryType;
@@ -11,11 +14,46 @@ public class SeedData {
 
 	public static void init(
 			CategoryRepository categoryRepository,
-			TagRepository tagRepository) {
+			TagRepository tagRepository,
+			PersonRepository personRepository,
+			AccountRepository accountRepository) {
 
 		incluirCategorias(categoryRepository);
 		incluirTags(tagRepository);
+		incluirPessoas(personRepository);
+		incluirContas(accountRepository);
 
+	}
+	
+	private static void incluirPessoas(PersonRepository repository) {
+		
+		if(repository.findAll().size() <=0) {
+			List.of(
+				new Person("Leandro"),
+				new Person("Meire"),
+				new Person("Leo"),
+				new Person("Isa"),
+				new Person("todos")
+			).forEach(person ->{
+				repository.save(person);
+				System.out.println(person);
+			});
+		}
+	}
+	
+	private static void incluirContas(AccountRepository repository) {
+		
+		if(repository.findAll().size() <=0) {
+			List.of(
+				new Account("Nubank", new BigDecimal("1000.00")),
+				new Account("C6", new BigDecimal("500.00")),
+				new Account("Caixa", new BigDecimal("250.00")),
+				new Account("Picpay", new BigDecimal("0.00"))
+			).forEach(account ->{
+				repository.save(account);
+				System.out.println(account);
+			});
+		}
 	}
 	
 	private static void incluirTags(TagRepository repository) {
