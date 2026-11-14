@@ -2,8 +2,8 @@ package com.leandro.monthly_budget.model.services.interfaces;
 
 import org.springframework.data.domain.Page;
 
-import com.leandro.monthly_budget.controller.requests.ProjectRequest;
-import com.leandro.monthly_budget.controller.requests.enums.StatusRequest;
+import com.leandro.monthly_budget.model.dtos.requests.ProjectRequest;
+import com.leandro.monthly_budget.model.dtos.requests.enums.StatusRequest;
 import com.leandro.monthly_budget.model.entities.Project;
 
 public interface ProjectService {

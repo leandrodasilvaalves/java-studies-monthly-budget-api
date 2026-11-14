@@ -6,18 +6,19 @@ import java.util.Objects;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
-import com.leandro.monthly_budget.controller.mappers.ProjectMapper;
-import com.leandro.monthly_budget.controller.requests.ProjectRequest;
-import com.leandro.monthly_budget.controller.requests.enums.StatusRequest;
+import com.leandro.monthly_budget.model.dtos.requests.ProjectRequest;
+import com.leandro.monthly_budget.model.dtos.requests.enums.StatusRequest;
 import com.leandro.monthly_budget.model.entities.Account;
 import com.leandro.monthly_budget.model.entities.Category;
 import com.leandro.monthly_budget.model.entities.Person;
 import com.leandro.monthly_budget.model.entities.Project;
 import com.leandro.monthly_budget.model.entities.Subcategory;
+import com.leandro.monthly_budget.model.exceptions.BusinessRuleException;
+import com.leandro.monthly_budget.model.exceptions.DuplicateResourceException;
+import com.leandro.monthly_budget.model.exceptions.ResourceNotFoundException;
+import com.leandro.monthly_budget.model.mappers.ProjectMapper;
 import com.leandro.monthly_budget.model.repositories.AccountRepository;
 import com.leandro.monthly_budget.model.repositories.CategoryRepository;
 import com.leandro.monthly_budget.model.repositories.PersonRepository;
@@ -64,7 +65,7 @@ public class ProjectServiceImpl implements ProjectService{
 
 	public Project getById(long id) {
 		return projectRepository.findById(id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+				.orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 	}
 
 	public Project create(ProjectRequest request) {
@@ -144,15 +145,14 @@ public class ProjectServiceImpl implements ProjectService{
 				|| request.getPlannedAmount() == null
 				|| request.getType() == null) {
 
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "All fields are required");
+			throw new BusinessRuleException("All fields are required");
 		}
 	}
 
 	private void validateDates(ProjectRequest request) {
 
 		if (!request.getFirstDepositDate().isBefore(request.getGoalDate())) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					"First deposit date must be before goal date");
+			throw new BusinessRuleException("First deposit date must be before goal date");
 		}
 	}
 
@@ -163,23 +163,22 @@ public class ProjectServiceImpl implements ProjectService{
 				: projectRepository.existsByNameAndIdNot(name, currentId);
 
 		if (exists) {
-			throw new ResponseStatusException(HttpStatus.CONFLICT,
-					"Already exists a project with this name");
+			throw new DuplicateResourceException("Already exists a project with this name");
 		}
 	}
 
 	private Category findCategory(Long id) {
 		return categoryRepository.findById(id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
+				.orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 	}
 
 	private Subcategory findSubcategory(Long id, Category category) {
 
 		var subcategory = subcategoryRepository.findById(id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Subcategory not found"));
+				.orElseThrow(() -> new ResourceNotFoundException("Subcategory not found"));
 
 		if (!subcategory.getCategory().getId().equals(category.getId())) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+			throw new BusinessRuleException(
 					"Subcategory does not belong to the informed category");
 		}
 
@@ -192,8 +191,7 @@ public class ProjectServiceImpl implements ProjectService{
 		var people = personRepository.findAllById(ids);
 
 		if (people.size() != ids.size()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					"One or more people were not found");
+			throw new BusinessRuleException("One or more people were not found");
 		}
 
 		return people;
@@ -201,6 +199,6 @@ public class ProjectServiceImpl implements ProjectService{
 
 	private Account findAccount(Long id) {
 		return accountRepository.findById(id)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found"));
+				.orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 	}
 }
