@@ -16,7 +16,7 @@ import com.leandro.monthly_budget.controller.mappers.ProjectMapper;
 import com.leandro.monthly_budget.controller.requests.ProjectRequest;
 import com.leandro.monthly_budget.controller.requests.enums.StatusRequest;
 import com.leandro.monthly_budget.controller.responses.ProjectResponse;
-import com.leandro.monthly_budget.model.services.ProjectService;
+import com.leandro.monthly_budget.model.services.interfaces.ProjectService;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
