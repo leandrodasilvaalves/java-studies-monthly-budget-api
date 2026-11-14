@@ -23,9 +23,10 @@ import com.leandro.monthly_budget.model.repositories.CategoryRepository;
 import com.leandro.monthly_budget.model.repositories.PersonRepository;
 import com.leandro.monthly_budget.model.repositories.ProjectRepository;
 import com.leandro.monthly_budget.model.repositories.SubcategoryRepository;
+import com.leandro.monthly_budget.model.services.interfaces.ProjectService;
 
 @Service
-public class ProjectService {
+public class ProjectServiceImpl implements ProjectService{
 
 	private ProjectRepository projectRepository;
 	private CategoryRepository categoryRepository;
@@ -34,7 +35,7 @@ public class ProjectService {
 	private AccountRepository accountRepository;
 	private ProjectMapper mapper;
 
-	public ProjectService(
+	public ProjectServiceImpl(
 			ProjectRepository projectRepository,
 			CategoryRepository categoryRepository,
 			SubcategoryRepository subcategoryRepository,
