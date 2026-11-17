@@ -3,6 +3,11 @@ package com.leandro.monthly_budget.model.repositories;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.leandro.monthly_budget.model.entities.Account;
 import com.leandro.monthly_budget.model.entities.Category;
 import com.leandro.monthly_budget.model.entities.Person;
@@ -10,13 +15,29 @@ import com.leandro.monthly_budget.model.entities.Subcategory;
 import com.leandro.monthly_budget.model.entities.Tag;
 import com.leandro.monthly_budget.model.enums.CategoryType;
 
+@Component
 public class SeedData {
 
-	public static void init(
+	private static final Logger log = LoggerFactory.getLogger(SeedData.class);
+
+	private final CategoryRepository categoryRepository;
+	private final TagRepository tagRepository;
+	private final PersonRepository personRepository;
+	private final AccountRepository accountRepository;
+
+	public SeedData(
 			CategoryRepository categoryRepository,
 			TagRepository tagRepository,
 			PersonRepository personRepository,
 			AccountRepository accountRepository) {
+		this.categoryRepository = categoryRepository;
+		this.tagRepository = tagRepository;
+		this.personRepository = personRepository;
+		this.accountRepository = accountRepository;
+	}
+
+	@Transactional
+	public void init() {
 
 		incluirCategorias(categoryRepository);
 		incluirTags(tagRepository);
@@ -24,8 +45,8 @@ public class SeedData {
 		incluirContas(accountRepository);
 
 	}
-	
-	private static void incluirPessoas(PersonRepository repository) {
+
+	private void incluirPessoas(PersonRepository repository) {
 		
 		if(repository.findAll().size() <=0) {
 			List.of(
@@ -36,12 +57,12 @@ public class SeedData {
 				new Person("todos")
 			).forEach(person ->{
 				repository.save(person);
-				System.out.println(person);
+				log.debug("Seeded {} {}", person.getClass().getSimpleName(), person.getId());
 			});
 		}
 	}
 	
-	private static void incluirContas(AccountRepository repository) {
+	private void incluirContas(AccountRepository repository) {
 		
 		if(repository.findAll().size() <=0) {
 			List.of(
@@ -51,12 +72,12 @@ public class SeedData {
 				new Account("Picpay", new BigDecimal("0.00"))
 			).forEach(account ->{
 				repository.save(account);
-				System.out.println(account);
+				log.debug("Seeded {} {}", account.getClass().getSimpleName(), account.getId());
 			});
 		}
 	}
 	
-	private static void incluirTags(TagRepository repository) {
+	private void incluirTags(TagRepository repository) {
 		
 		if(repository.findAll().size() <=0) {
 			List.of(
@@ -69,12 +90,12 @@ public class SeedData {
 				new Tag("cc-recorrente")
 			).forEach(tag ->{
 				repository.save(tag);
-				System.out.println(tag);
+				log.debug("Seeded {} {}", tag.getClass().getSimpleName(), tag.getId());
 			});
 		}
 	}
 	
-	private static void incluirCategorias(CategoryRepository repository) {
+	private void incluirCategorias(CategoryRepository repository) {
 		if (repository.findAll().size() <= 0) {
 
 			var receitasFixas = new Category("💰 Receitas Fixas", CategoryType.INCOME);

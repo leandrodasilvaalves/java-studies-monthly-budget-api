@@ -1,54 +1,36 @@
 package com.leandro.monthly_budget.model.services;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.leandro.monthly_budget.model.dtos.requests.FixedExpenseRequest;
 import com.leandro.monthly_budget.model.dtos.requests.enums.StatusRequest;
-import com.leandro.monthly_budget.model.entities.Category;
 import com.leandro.monthly_budget.model.entities.FixedExpense;
-import com.leandro.monthly_budget.model.entities.Person;
-import com.leandro.monthly_budget.model.entities.Subcategory;
-import com.leandro.monthly_budget.model.entities.Tag;
 import com.leandro.monthly_budget.model.enums.CategoryType;
-import com.leandro.monthly_budget.model.exceptions.BusinessRuleException;
 import com.leandro.monthly_budget.model.exceptions.ResourceNotFoundException;
 import com.leandro.monthly_budget.model.mappers.FixedExpenseMapper;
-import com.leandro.monthly_budget.model.repositories.CategoryRepository;
 import com.leandro.monthly_budget.model.repositories.FixedExpenseRepository;
-import com.leandro.monthly_budget.model.repositories.PersonRepository;
-import com.leandro.monthly_budget.model.repositories.SubcategoryRepository;
-import com.leandro.monthly_budget.model.repositories.TagRepository;
 import com.leandro.monthly_budget.model.services.interfaces.FixedExpenseService;
+import com.leandro.monthly_budget.model.services.support.ReferenceDataValidator;
 
 @Service
+@Transactional
 public class FixedExpenseServiceImpl implements FixedExpenseService {
 
-	private FixedExpenseRepository fixedExpenseRepository;
-	private CategoryRepository categoryRepository;
-	private SubcategoryRepository subcategoryRepository;
-	private PersonRepository personRepository;
-	private TagRepository tagRepository;
-	private FixedExpenseMapper mapper;
+	private final FixedExpenseRepository fixedExpenseRepository;
+	private final FixedExpenseMapper mapper;
+	private final ReferenceDataValidator validator;
 
 	public FixedExpenseServiceImpl(
 			FixedExpenseRepository fixedExpenseRepository,
-			CategoryRepository categoryRepository,
-			SubcategoryRepository subcategoryRepository,
-			PersonRepository personRepository,
-			TagRepository tagRepository,
-			FixedExpenseMapper mapper) {
-		super();
+			FixedExpenseMapper mapper,
+			ReferenceDataValidator validator) {
 		this.fixedExpenseRepository = fixedExpenseRepository;
-		this.categoryRepository = categoryRepository;
-		this.subcategoryRepository = subcategoryRepository;
-		this.personRepository = personRepository;
-		this.tagRepository = tagRepository;
 		this.mapper = mapper;
+		this.validator = validator;
 	}
 
 	public Page<FixedExpense> getAll(int page, int size, StatusRequest status) {
@@ -114,110 +96,21 @@ public class FixedExpenseServiceImpl implements FixedExpenseService {
 		return fixedExpenseRepository.save(fixedExpense);
 	}
 
-	private void applyRelations(FixedExpense fixedExpense, FixedExpenseRequest request) {
-
-		var category = findCategory(request.getCategoryId());
-		var subcategory = findSubcategory(request.getSubcategoryId(), category);
-		var people = findPeople(request.getPersonIds());
-		var tags = findTags(request.getTagIds());
-
-		fixedExpense.setCategory(category);
-		fixedExpense.setSubcategory(subcategory);
-		fixedExpense.setPeople(people);
-		fixedExpense.setTags(tags);
-	}
-
 	private void validateRequest(FixedExpenseRequest request) {
 
-		validateRequiredFields(request);
-		validateDates(request);
+		validator.requireRequest(request);
+		validator.requireDateOrder(request.getStartDate(), request.getEndDate());
 	}
 
-	private void validateRequiredFields(FixedExpenseRequest request) {
+	private void applyRelations(FixedExpense fixedExpense, FixedExpenseRequest request) {
 
-		if (request == null
-				|| request.getCategoryId() == null
-				|| request.getSubcategoryId() == null
-				|| request.getDescription() == null || request.getDescription().isBlank()
-				|| request.getAmount() == null
-				|| request.getStartDate() == null
-				|| request.getEndDate() == null) {
+		var category = validator.requireCategory(
+				request.getCategoryId(), CategoryType.EXPENSE, "fixed expenses");
 
-			throw new BusinessRuleException(
-					"Category, subcategory, description, amount, start date and end date are required");
-		}
-	}
-
-	private void validateDates(FixedExpenseRequest request) {
-
-		if (!request.getEndDate().isAfter(request.getStartDate())) {
-			throw new BusinessRuleException("End date must be after start date");
-		}
-	}
-
-	private Category findCategory(Long id) {
-
-		var category = categoryRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("Category not found"));
-
-		if (category.getType() != CategoryType.EXPENSE) {
-			throw new BusinessRuleException(
-					"Category type must be Expense for fixed expenses");
-		}
-
-		return category;
-	}
-
-	private Subcategory findSubcategory(Long id, Category category) {
-
-		var subcategory = subcategoryRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("Subcategory not found"));
-
-		if (!subcategory.getCategory().getId().equals(category.getId())) {
-			throw new BusinessRuleException(
-					"Subcategory does not belong to the informed category");
-		}
-
-		return subcategory;
-	}
-
-	private List<Person> findPeople(List<Long> personIds) {
-
-		if (personIds == null || personIds.isEmpty()) {
-			return List.of();
-		}
-
-		if (personIds.contains(null)) {
-			throw new BusinessRuleException("Person is required");
-		}
-
-		var ids = personIds.stream().distinct().toList();
-		var people = personRepository.findAllById(ids);
-
-		if (people.size() != ids.size()) {
-			throw new BusinessRuleException("One or more people were not found");
-		}
-
-		return people;
-	}
-
-	private List<Tag> findTags(List<Long> tagIds) {
-
-		if (tagIds == null || tagIds.isEmpty()) {
-			return List.of();
-		}
-
-		if (tagIds.contains(null)) {
-			throw new BusinessRuleException("Tag is required");
-		}
-
-		var ids = tagIds.stream().distinct().toList();
-		var tags = tagRepository.findAllById(ids);
-
-		if (tags.size() != ids.size()) {
-			throw new BusinessRuleException("One or more tags were not found");
-		}
-
-		return tags;
+		fixedExpense.setCategory(category);
+		fixedExpense.setSubcategory(
+				validator.requireSubcategory(request.getSubcategoryId(), category));
+		fixedExpense.setPeople(validator.requirePeople(request.getPersonIds()));
+		fixedExpense.setTags(validator.requireTags(request.getTagIds()));
 	}
 }
