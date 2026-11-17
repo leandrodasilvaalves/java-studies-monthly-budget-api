@@ -122,10 +122,6 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return map;
     }
 
-    private static String prefix(String prefix, String field) {
-        return (prefix == null || field == null) ? field : prefix + "." + field;
-    }
-
     private List<Map<String, Object>> fieldErrors(List<FieldError> errors) {
         return errors.stream()
                 .map(fe -> error(fe.getField(), resolve(fe), fe.getRejectedValue()))
@@ -140,8 +136,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
             if (pvr instanceof ParameterErrors beanErrors) {
                 for (FieldError fe : beanErrors.getFieldErrors()) {
-                    errors.add(error(prefix(parameter, fe.getField()),
-                            resolve(fe), fe.getRejectedValue()));
+                    errors.add(error(fe.getField(), resolve(fe), fe.getRejectedValue()));
                 }
                 for (ObjectError ge : beanErrors.getGlobalErrors()) {
                     errors.add(error(parameter, resolve(ge), null));

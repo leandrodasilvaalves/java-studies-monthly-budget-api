@@ -3,7 +3,6 @@ package com.leandro.monthly_budget.controller;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -14,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
+
+import com.leandro.monthly_budget.model.exceptions.DuplicateResourceException;
+import com.leandro.monthly_budget.model.exceptions.ResourceNotFoundException;
 
 import com.leandro.monthly_budget.model.dtos.requests.CategoryRequest;
 import com.leandro.monthly_budget.model.dtos.requests.enums.StatusRequest;
@@ -67,14 +68,14 @@ public class CategoriesController {
 
 		return repository.findById(id)
 				.map(record -> mapper.toResponse(record))
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+				.orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 	}
 
 	@PostMapping	
 	public ResponseEntity<CategoryResponse> create(@Valid @RequestBody CategoryRequest request) {
 
 		if (repository.existsByNameAndType(request.getName(), request.getType())) {
-			throw new ResponseStatusException(HttpStatus.CONFLICT, "Already exists a category with this name and type");
+			throw new DuplicateResourceException("Already exists a category with this name and type");
 		}				
 		
 		var created = repository.save(mapper.toEntity(request));
@@ -94,7 +95,7 @@ public class CategoriesController {
 			var updated = repository.save(record);
 			return ResponseEntity.ok().body(mapper.toResponse(updated));
 
-		}).orElse(ResponseEntity.notFound().build());
+		}).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 	}
 
 	@PatchMapping("/{id}/activate")
@@ -106,7 +107,7 @@ public class CategoriesController {
 			var updated = repository.save(record);
 			return ResponseEntity.ok().body(mapper.toResponse(updated));
 
-		}).orElse(ResponseEntity.notFound().build());
+		}).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 	}
 
 	@PatchMapping("/{id}/inactivate")
@@ -118,7 +119,7 @@ public class CategoriesController {
 			var updated = repository.save(record);
 			return ResponseEntity.ok().body(mapper.toResponse(updated));
 
-		}).orElse(ResponseEntity.notFound().build());
+		}).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 	}
 
 }

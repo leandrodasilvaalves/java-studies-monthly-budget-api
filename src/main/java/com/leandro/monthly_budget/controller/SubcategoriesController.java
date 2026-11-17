@@ -2,7 +2,6 @@ package com.leandro.monthly_budget.controller;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -13,7 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
+
+import com.leandro.monthly_budget.model.exceptions.DuplicateResourceException;
+import com.leandro.monthly_budget.model.exceptions.ResourceNotFoundException;
 
 import com.leandro.monthly_budget.model.dtos.requests.SubcategoryRequest;
 import com.leandro.monthly_budget.model.dtos.requests.enums.StatusRequest;
@@ -22,6 +23,7 @@ import com.leandro.monthly_budget.model.mappers.SubcategoryMapper;
 import com.leandro.monthly_budget.model.repositories.CategoryRepository;
 import com.leandro.monthly_budget.model.repositories.SubcategoryRepository;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
@@ -67,19 +69,19 @@ public class SubcategoriesController {
 	{
 		return subcategoryRepository.findByIdAndCategoryId(id, categoryId)
 				.map(record -> mapper.toResponse(record))
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));					
+				.orElseThrow(() -> new ResourceNotFoundException("Subcategory not found"));
 	}
 
 	@PostMapping
 	public ResponseEntity<SubcategoryResponse> create(
 			@PathVariable @Min(1) Long categoryId, 
-			@RequestBody SubcategoryRequest request){
+			@Valid @RequestBody SubcategoryRequest request){
 		
 		var category = categoryRepository.findById(categoryId)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));		
+				.orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 		
 		if (subcategoryRepository.existsByNameAndCategory(request.getName(), categoryId)) {
-			throw new ResponseStatusException(HttpStatus.CONFLICT, 
+			throw new DuplicateResourceException(
 				"Already exists a subcategory with this name for this category");
 		}	
 		
@@ -96,10 +98,10 @@ public class SubcategoriesController {
 	public ResponseEntity<SubcategoryResponse> update(
 			@PathVariable @Min(1) Long categoryId,
 			@PathVariable @Min(1) Long id,
-			@RequestBody SubcategoryRequest request){
+			@Valid @RequestBody SubcategoryRequest request){
 		
 		categoryRepository.findById(categoryId)
-			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));		
+			.orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 		
 		return subcategoryRepository.findByIdAndCategoryId(id, categoryId)
 			.map(record ->{
@@ -108,7 +110,7 @@ public class SubcategoriesController {
 				var updated = subcategoryRepository.save(record);
 				return ResponseEntity.ok(mapper.toResponse(updated));				
 			})
-			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+			.orElseThrow(() -> new ResourceNotFoundException("Subcategory not found"));
 				
 	}	
 	
@@ -124,7 +126,7 @@ public class SubcategoriesController {
 				var updated = subcategoryRepository.save(record);
 				return ResponseEntity.ok(mapper.toResponse(updated));				
 			})
-			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+			.orElseThrow(() -> new ResourceNotFoundException("Subcategory not found"));
 	}
 	
 	@PatchMapping("/{id}/inactivate")
@@ -139,7 +141,7 @@ public class SubcategoriesController {
 				var updated = subcategoryRepository.save(record);
 				return ResponseEntity.ok(mapper.toResponse(updated));				
 			})
-			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+			.orElseThrow(() -> new ResourceNotFoundException("Subcategory not found"));
 	}
 }
 

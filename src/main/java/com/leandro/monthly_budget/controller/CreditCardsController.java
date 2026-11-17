@@ -3,7 +3,6 @@ package com.leandro.monthly_budget.controller;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -14,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
+
+import com.leandro.monthly_budget.model.exceptions.DuplicateResourceException;
+import com.leandro.monthly_budget.model.exceptions.ResourceNotFoundException;
 
 import com.leandro.monthly_budget.model.dtos.requests.CreditCardRequest;
 import com.leandro.monthly_budget.model.dtos.requests.enums.StatusRequest;
@@ -22,6 +23,7 @@ import com.leandro.monthly_budget.model.dtos.responses.CreditCardResponse;
 import com.leandro.monthly_budget.model.mappers.CreditCardMapper;
 import com.leandro.monthly_budget.model.repositories.CreditCardRepository;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
@@ -58,13 +60,13 @@ public class CreditCardsController {
 	public CreditCardResponse getById(@PathVariable long id) {
 		return repository.findById(id)
 				.map(mapper::toResponse)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)); 
+				.orElseThrow(() -> new ResourceNotFoundException("Credit card not found")); 
 	}
 
 	@PostMapping
-	public ResponseEntity<CreditCardResponse> create(@RequestBody CreditCardRequest request){
+	public ResponseEntity<CreditCardResponse> create(@Valid @RequestBody CreditCardRequest request){
 		if(repository.existsByName(request.getName())) {
-			throw new ResponseStatusException(HttpStatus.CONFLICT, "Already exists a credit card with this name");
+			throw new DuplicateResourceException("Already exists a credit card with this name");
 		}
 		
 		var created = repository.save(mapper.toEntity(request));
@@ -77,7 +79,7 @@ public class CreditCardsController {
 	
 	@PutMapping("/{id}")
 	public ResponseEntity<CreditCardResponse> update(@PathVariable @Min(1) long id, 
-			@RequestBody CreditCardRequest request){
+			@Valid @RequestBody CreditCardRequest request){
 		
 		return repository.findById(id)
 				.map(record ->{					
@@ -86,7 +88,7 @@ public class CreditCardsController {
 					var updated = repository.save(record);					
 					return ResponseEntity.ok().body(mapper.toResponse(updated));
 				})
-				.orElse(ResponseEntity.notFound().build());
+				.orElseThrow(() -> new ResourceNotFoundException("Credit card not found"));
 				
 	}
 	
@@ -99,7 +101,7 @@ public class CreditCardsController {
 					var updated = repository.save(record);					
 					return ResponseEntity.ok().body(mapper.toResponse(updated));
 				})
-				.orElse(ResponseEntity.notFound().build());
+				.orElseThrow(() -> new ResourceNotFoundException("Credit card not found"));
 				
 	}
 	
@@ -112,7 +114,7 @@ public class CreditCardsController {
 					var updated = repository.save(record);					
 					return ResponseEntity.ok().body(mapper.toResponse(updated));
 				})
-				.orElse(ResponseEntity.notFound().build());
+				.orElseThrow(() -> new ResourceNotFoundException("Credit card not found"));
 				
 	}
 }

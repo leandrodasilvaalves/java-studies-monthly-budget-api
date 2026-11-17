@@ -3,7 +3,6 @@ package com.leandro.monthly_budget.controller;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -14,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
+
+import com.leandro.monthly_budget.model.exceptions.DuplicateResourceException;
+import com.leandro.monthly_budget.model.exceptions.ResourceNotFoundException;
 
 import com.leandro.monthly_budget.model.dtos.requests.AccountCreateRequest;
 import com.leandro.monthly_budget.model.dtos.requests.AccountUpdateRequest;
@@ -23,6 +24,7 @@ import com.leandro.monthly_budget.model.dtos.responses.AccountResponse;
 import com.leandro.monthly_budget.model.mappers.AccountMapper;
 import com.leandro.monthly_budget.model.repositories.AccountRepository;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
@@ -58,14 +60,14 @@ public class AccountsController {
 	public AccountResponse getById(@PathVariable long id) {
 		return repository.findById(id)
 				.map(mapper::toResponse)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)); 
+				.orElseThrow(() -> new ResourceNotFoundException("Account not found")); 
 	}
 	
 	@PostMapping
-	public ResponseEntity<AccountResponse> create(@RequestBody AccountCreateRequest request){
+	public ResponseEntity<AccountResponse> create(@Valid @RequestBody AccountCreateRequest request){
 		
 		if(repository.existsByName(request.getName())) {
-			throw new ResponseStatusException(HttpStatus.CONFLICT, "Already exists an account with this name");
+			throw new DuplicateResourceException("Already exists an account with this name");
 		}
 		
 		var entity = mapper.toEntity(request);
@@ -78,7 +80,7 @@ public class AccountsController {
 	
 	@PutMapping("/{id}")
 	public ResponseEntity<AccountResponse> update(@PathVariable @Min(1) long id, 
-			@RequestBody AccountUpdateRequest request){
+			@Valid @RequestBody AccountUpdateRequest request){
 		
 		return repository.findById(id)
 				.map(record ->{					
@@ -86,7 +88,7 @@ public class AccountsController {
 					var updated = repository.save(record);					
 					return ResponseEntity.ok().body(mapper.toResponse(updated));
 				})
-				.orElse(ResponseEntity.notFound().build());
+				.orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 				
 	}
 	
@@ -99,7 +101,7 @@ public class AccountsController {
 					var updated = repository.save(record);					
 					return ResponseEntity.ok().body(mapper.toResponse(updated));
 				})
-				.orElse(ResponseEntity.notFound().build());
+				.orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 				
 	}
 	
@@ -112,7 +114,7 @@ public class AccountsController {
 					var updated = repository.save(record);					
 					return ResponseEntity.ok().body(mapper.toResponse(updated));
 				})
-				.orElse(ResponseEntity.notFound().build());
+				.orElseThrow(() -> new ResourceNotFoundException("Account not found"));
 				
 	}
 }
