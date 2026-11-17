@@ -47,7 +47,7 @@ public class Project extends EntityBase {
 
 	@ManyToOne
 	@JoinColumn(name = "account_id", nullable = false)
-	private Account account;
+	private Account account;	
 
 	@Column(nullable = false)
 	private LocalDate firstDepositDate;
@@ -63,4 +63,6 @@ public class Project extends EntityBase {
 	private ProjectType type;
 
 	private boolean active = true;
+
+	private String brokerageAccount;
 }

@@ -26,4 +26,5 @@ public class ProjectResponse {
 	private BigDecimal plannedAmount;
 	private ProjectType type;
 	private boolean active;
+	private String brokerageAccount;
 }

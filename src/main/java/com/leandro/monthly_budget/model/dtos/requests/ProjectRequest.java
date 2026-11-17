@@ -44,4 +44,7 @@ public class ProjectRequest {
 
 	@NotNull(message = "Type is required")
 	private ProjectType type;
+	
+	@NotNull(message = "Brokerage Account is required")
+	private String brokerageAccount;
 }

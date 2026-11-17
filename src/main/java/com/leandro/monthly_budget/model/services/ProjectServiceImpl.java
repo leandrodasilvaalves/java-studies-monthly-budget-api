@@ -89,6 +89,7 @@ public class ProjectServiceImpl implements ProjectService{
 		project.setGoalDate(request.getGoalDate());
 		project.setPlannedAmount(request.getPlannedAmount());
 		project.setType(request.getType());
+		project.setBrokerageAccount(request.getBrokerageAccount());
 
 		applyRelations(project, request);
 
