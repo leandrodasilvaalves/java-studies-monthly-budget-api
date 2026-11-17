@@ -77,16 +77,16 @@ public class SeedData {
 	private static void incluirCategorias(CategoryRepository repository) {
 		if (repository.findAll().size() <= 0) {
 
-			var receitasFixas = new Category("💰 Receitas Fixas", CategoryType.Income);
-			var receitasVariaveis = new Category("🪙 Receitas Variáveis", CategoryType.Income);
-			var habitacao = new Category("🏠 Habitação", CategoryType.Expense);
-			var educacao = new Category("📙 Educação", CategoryType.Expense);
-			var transporte = new Category("🚘 Transporte", CategoryType.Expense);
-			var saude = new Category("🩵 Saúde", CategoryType.Expense);
-			var lazer = new Category("🏖️ Lazer", CategoryType.Expense);
-			var despesasTemporarias = new Category("⏳ Despesas Temporárias", CategoryType.Expense);
-			var despesasPessoais = new Category("👨‍🦱 Despesas Pessoais", CategoryType.Expense);
-			var investimentos = new Category("💰 Investimentos", CategoryType.Expense);
+			var receitasFixas = new Category("💰 Receitas Fixas", CategoryType.INCOME);
+			var receitasVariaveis = new Category("🪙 Receitas Variáveis", CategoryType.INCOME);
+			var habitacao = new Category("🏠 Habitação", CategoryType.EXPENSE);
+			var educacao = new Category("📙 Educação", CategoryType.EXPENSE);
+			var transporte = new Category("🚘 Transporte", CategoryType.EXPENSE);
+			var saude = new Category("🩵 Saúde", CategoryType.EXPENSE);
+			var lazer = new Category("🏖️ Lazer", CategoryType.EXPENSE);
+			var despesasTemporarias = new Category("⏳ Despesas Temporárias", CategoryType.EXPENSE);
+			var despesasPessoais = new Category("👨‍🦱 Despesas Pessoais", CategoryType.EXPENSE);
+			var investimentos = new Category("💰 Investimentos", CategoryType.EXPENSE);
 			
 			incluirSubcategoriasEmReceitasFixas(receitasFixas);
 			incluirSubcategoriasEmReceitasVariaveis(receitasVariaveis);

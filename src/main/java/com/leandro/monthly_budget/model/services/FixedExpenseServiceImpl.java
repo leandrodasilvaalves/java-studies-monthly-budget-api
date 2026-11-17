@@ -160,7 +160,7 @@ public class FixedExpenseServiceImpl implements FixedExpenseService {
 		var category = categoryRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
-		if (category.getType() != CategoryType.Expense) {
+		if (category.getType() != CategoryType.EXPENSE) {
 			throw new BusinessRuleException(
 					"Category type must be Expense for fixed expenses");
 		}

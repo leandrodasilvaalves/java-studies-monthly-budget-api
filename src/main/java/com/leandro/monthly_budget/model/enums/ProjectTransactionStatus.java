@@ -1,6 +1,6 @@
 package com.leandro.monthly_budget.model.enums;
 
 public enum ProjectTransactionStatus {
-	Pending,
-	Done,
+	PENDING,
+	DONE,
 }

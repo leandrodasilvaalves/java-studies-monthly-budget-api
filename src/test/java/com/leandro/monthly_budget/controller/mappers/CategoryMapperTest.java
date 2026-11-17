@@ -16,12 +16,12 @@ class CategoryMapperTest {
 
 	@Test
 	void mapsRequestToEntity() {
-		var request = new CategoryRequest("Food", CategoryType.Expense);
+		var request = new CategoryRequest("Food", CategoryType.EXPENSE);
 
 		var category = mapper.toEntity(request);
 
 		assertThat(category.getName()).isEqualTo("Food");
-		assertThat(category.getType()).isEqualTo(CategoryType.Expense);
+		assertThat(category.getType()).isEqualTo(CategoryType.EXPENSE);
 	}
 
 	@Test
@@ -29,13 +29,13 @@ class CategoryMapperTest {
 		var category = new Category();
 		category.setId(1L);
 		category.setName("Salary");
-		category.setType(CategoryType.Income);
+		category.setType(CategoryType.INCOME);
 
 		var response = mapper.toResponse(category);
 
 		assertThat(response.getId()).isEqualTo(1L);
 		assertThat(response.getName()).isEqualTo("Salary");
-		assertThat(response.getType()).isEqualTo(CategoryType.Income);
+		assertThat(response.getType()).isEqualTo(CategoryType.INCOME);
 	}
 
 	@Test

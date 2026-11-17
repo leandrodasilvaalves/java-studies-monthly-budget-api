@@ -160,7 +160,7 @@ public class FixedIncomeServiceImpl implements FixedIncomeService {
 		var category = categoryRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
-		if (category.getType() != CategoryType.Income) {
+		if (category.getType() != CategoryType.INCOME) {
 			throw new BusinessRuleException(
 					"Category type must be Income for fixed incomes");
 		}
