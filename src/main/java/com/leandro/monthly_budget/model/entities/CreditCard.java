@@ -3,9 +3,11 @@ package com.leandro.monthly_budget.model.entities;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name="creditcards")
 public class CreditCard extends EntityBase{

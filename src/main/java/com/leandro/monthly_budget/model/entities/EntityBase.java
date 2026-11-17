@@ -12,30 +12,31 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import tools.jackson.databind.ObjectMapper;
+import lombok.Setter;
+import lombok.ToString;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class EntityBase {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@EqualsAndHashCode.Include
+	@ToString.Include
 	private Long id;
-	
-	@CreatedDate
-    private Instant createdAt;
 
-    @LastModifiedDate
-    private Instant updatedAt;
-    
-    @Override
-    public String toString() {
-        var mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
-    }
+	@CreatedDate
+	private Instant createdAt;
+
+	@LastModifiedDate
+	private Instant updatedAt;
 }
