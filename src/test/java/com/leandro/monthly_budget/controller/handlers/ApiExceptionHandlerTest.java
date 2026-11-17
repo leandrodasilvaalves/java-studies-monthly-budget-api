@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.leandro.monthly_budget.model.exceptions.DuplicateResourceException;
+import com.leandro.monthly_budget.model.exceptions.ResourceNotFoundException;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -86,6 +89,22 @@ class ApiExceptionHandlerTest {
                 .andExpect(jsonPath("$.detail").value("missing"));
     }
 
+    @Test
+    void domainNotFoundUsesSameProblemDetailContract() throws Exception {
+        mockMvc.perform(get("/stub/domain-not-found"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.title").value("Resource Not Found"))
+                .andExpect(jsonPath("$.detail").value("Account not found"));
+    }
+
+    @Test
+    void domainDuplicateUsesSameProblemDetailContract() throws Exception {
+        mockMvc.perform(get("/stub/duplicate"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.title").value("Duplicate Resource Error"))
+                .andExpect(jsonPath("$.detail").value("Already exists an account with this name"));
+    }
+
     @RestController
     static class StubController {
 
@@ -105,6 +124,16 @@ class ApiExceptionHandlerTest {
         @GetMapping("/stub/not-found")
         void notFound() {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "missing");
+        }
+
+        @GetMapping("/stub/domain-not-found")
+        void domainNotFound() {
+            throw new ResourceNotFoundException("Account not found");
+        }
+
+        @GetMapping("/stub/duplicate")
+        void duplicate() {
+            throw new DuplicateResourceException("Already exists an account with this name");
         }
     }
 
