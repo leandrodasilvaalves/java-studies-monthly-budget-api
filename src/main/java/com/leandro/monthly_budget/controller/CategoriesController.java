@@ -1,8 +1,6 @@
 package com.leandro.monthly_budget.controller;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -14,15 +12,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.leandro.monthly_budget.model.exceptions.DuplicateResourceException;
-import com.leandro.monthly_budget.model.exceptions.ResourceNotFoundException;
-
 import com.leandro.monthly_budget.model.dtos.requests.CategoryRequest;
 import com.leandro.monthly_budget.model.dtos.requests.enums.StatusRequest;
 import com.leandro.monthly_budget.model.dtos.responses.CategoryResponse;
 import com.leandro.monthly_budget.model.enums.CategoryType;
 import com.leandro.monthly_budget.model.mappers.CategoryMapper;
-import com.leandro.monthly_budget.model.repositories.CategoryRepository;
+import com.leandro.monthly_budget.model.services.interfaces.CategoryService;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -32,12 +27,12 @@ import jakarta.validation.constraints.Min;
 @RequestMapping("/api/v1/categories")
 public class CategoriesController {
 
-	private CategoryRepository repository;
+	private CategoryService service;
 	private CategoryMapper mapper;
 
-	public CategoriesController(CategoryRepository repository, CategoryMapper mapper) {
+	public CategoriesController(CategoryService service, CategoryMapper mapper) {
 		super();
-		this.repository = repository;
+		this.service = service;
 		this.mapper = mapper;
 	}
 
@@ -47,79 +42,46 @@ public class CategoriesController {
 			@RequestParam(required = false) CategoryType type,
 			@RequestParam(defaultValue = "ALL") StatusRequest status) {
 
-		Pageable pageable = PageRequest.of(page - 1, size);
-		var categories = switch (status) {
-			case ALL -> (type == null)
-					? repository.findAll(pageable)
-					: repository.findByType(type, pageable);
-			case ACTIVE -> (type == null)
-					? repository.findAllByStatus(true, pageable)
-					: repository.findByTypeAndStatus(type, true, pageable);
-			case INACTIVE -> (type == null)
-					? repository.findAllByStatus(false, pageable)
-					: repository.findByTypeAndStatus(type, false, pageable);
-		};
-		
-		return categories.map(mapper::toResponse);
+		return service.getAll(page, size, type, status).map(mapper::toResponse);
 	}
 
 	@GetMapping("/{id}")
 	public CategoryResponse getById(@PathVariable @Min(1) long id) {
-
-		return repository.findById(id)
-				.map(record -> mapper.toResponse(record))
-				.orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+		return mapper.toResponse(service.getById(id));
 	}
 
-	@PostMapping	
+	@PostMapping
 	public ResponseEntity<CategoryResponse> create(@Valid @RequestBody CategoryRequest request) {
 
-		if (repository.existsByNameAndType(request.getName(), request.getType())) {
-			throw new DuplicateResourceException("Already exists a category with this name and type");
-		}				
-		
-		var created = repository.save(mapper.toEntity(request));
-		
+		var created = service.create(request);
+
 		return ResponseEntity
 				.created(null)
 				.body(mapper.toResponse(created));
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<CategoryResponse> update(@PathVariable Long id, @Valid @RequestBody CategoryRequest entity) {
+	public ResponseEntity<CategoryResponse> update(@PathVariable Long id,
+			@Valid @RequestBody CategoryRequest request) {
 
-		return repository.findById(id).map(record -> {
-			record.setName(entity.getName());
-			record.setType(entity.getType());
+		var updated = service.update(id, request);
 
-			var updated = repository.save(record);
-			return ResponseEntity.ok().body(mapper.toResponse(updated));
-
-		}).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+		return ResponseEntity.ok().body(mapper.toResponse(updated));
 	}
 
 	@PatchMapping("/{id}/activate")
 	public ResponseEntity<CategoryResponse> activate(@PathVariable long id) {
 
-		return repository.findById(id).map(record -> {
+		var updated = service.activate(id);
 
-			record.setActive(true);
-			var updated = repository.save(record);
-			return ResponseEntity.ok().body(mapper.toResponse(updated));
-
-		}).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+		return ResponseEntity.ok().body(mapper.toResponse(updated));
 	}
 
 	@PatchMapping("/{id}/inactivate")
 	public ResponseEntity<CategoryResponse> inactivate(@PathVariable long id) {
 
-		return repository.findById(id).map(record -> {
+		var updated = service.inactivate(id);
 
-			record.setActive(false);
-			var updated = repository.save(record);
-			return ResponseEntity.ok().body(mapper.toResponse(updated));
-
-		}).orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+		return ResponseEntity.ok().body(mapper.toResponse(updated));
 	}
-
 }

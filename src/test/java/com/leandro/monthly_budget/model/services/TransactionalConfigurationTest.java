@@ -17,6 +17,12 @@ class TransactionalConfigurationTest {
 		assertThat(FixedExpenseServiceImpl.class.isAnnotationPresent(Transactional.class)).isTrue();
 		assertThat(ProjectServiceImpl.class.isAnnotationPresent(Transactional.class)).isTrue();
 		assertThat(CreditCardSubscriptionServiceImpl.class.isAnnotationPresent(Transactional.class)).isTrue();
+		assertThat(AccountServiceImpl.class.isAnnotationPresent(Transactional.class)).isTrue();
+		assertThat(CategoryServiceImpl.class.isAnnotationPresent(Transactional.class)).isTrue();
+		assertThat(CreditCardServiceImpl.class.isAnnotationPresent(Transactional.class)).isTrue();
+		assertThat(PersonServiceImpl.class.isAnnotationPresent(Transactional.class)).isTrue();
+		assertThat(SubcategoryServiceImpl.class.isAnnotationPresent(Transactional.class)).isTrue();
+		assertThat(TagServiceImpl.class.isAnnotationPresent(Transactional.class)).isTrue();
 	}
 
 	@Test

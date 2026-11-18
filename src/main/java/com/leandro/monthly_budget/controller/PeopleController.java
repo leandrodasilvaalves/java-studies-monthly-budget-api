@@ -1,8 +1,6 @@
 package com.leandro.monthly_budget.controller;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -14,14 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.leandro.monthly_budget.model.exceptions.DuplicateResourceException;
-import com.leandro.monthly_budget.model.exceptions.ResourceNotFoundException;
-
 import com.leandro.monthly_budget.model.dtos.requests.PersonRequest;
 import com.leandro.monthly_budget.model.dtos.requests.enums.StatusRequest;
 import com.leandro.monthly_budget.model.dtos.responses.PersonResponse;
 import com.leandro.monthly_budget.model.mappers.PersonMapper;
-import com.leandro.monthly_budget.model.repositories.PersonRepository;
+import com.leandro.monthly_budget.model.services.interfaces.PersonService;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -30,103 +25,62 @@ import jakarta.validation.constraints.Min;
 @RestController
 @RequestMapping("api/v1/people")
 public class PeopleController {
-	
-	private PersonRepository repository;
+
+	private PersonService service;
 	private PersonMapper mapper;
-	
-	public PeopleController(PersonRepository repository, PersonMapper mapper) {
+
+	public PeopleController(PersonService service, PersonMapper mapper) {
 		super();
-		this.repository = repository;
+		this.service = service;
 		this.mapper = mapper;
 	}
-	
+
 	@GetMapping
 	public Page<PersonResponse> getAll(
-			@RequestParam(defaultValue = "1") @Min(1) int page, 
-			@RequestParam(defaultValue = "20") @Min(1) @Max(50) int size, 
-			@RequestParam(defaultValue="ALL") StatusRequest status){
-		
-		Pageable pageable = PageRequest.of(page -1, size);
-		
-		var people = status == StatusRequest.ALL
-				? repository.findAll(pageable)
-				: repository.findAllByStatus(status == StatusRequest.ACTIVE, pageable);
-		
-		return people.map(mapper::toResponse);		
+			@RequestParam(defaultValue = "1") @Min(1) int page,
+			@RequestParam(defaultValue = "20") @Min(1) @Max(50) int size,
+			@RequestParam(defaultValue = "ALL") StatusRequest status) {
+
+		return service.getAll(page, size, status).map(mapper::toResponse);
 	}
-	
+
 	@GetMapping("/{id}")
 	public PersonResponse getById(@PathVariable long id) {
-		return repository.findById(id)
-				.map(mapper::toResponse)
-				.orElseThrow(() -> new ResourceNotFoundException("Person not found")); 
+		return mapper.toResponse(service.getById(id));
 	}
-	
+
 	@PostMapping
-	public ResponseEntity<PersonResponse> create(@Valid @RequestBody PersonRequest request){
-		
-		if(repository.existsByName(request.getName())) {
-			throw new DuplicateResourceException("Already exists a person with this name");
-		}
-		
-		var entity = mapper.toEntity(request);
-		var saved = repository.save(entity);
-		
+	public ResponseEntity<PersonResponse> create(@Valid @RequestBody PersonRequest request) {
+
+		var created = service.create(request);
+
 		return ResponseEntity
 				.created(null)
-				.body(mapper.toResponse(saved));
+				.body(mapper.toResponse(created));
 	}
-	
+
 	@PutMapping("/{id}")
-	public ResponseEntity<PersonResponse> update(@PathVariable @Min(1) long id, 
-			@Valid @RequestBody PersonRequest request){
-		
-		return repository.findById(id)
-				.map(record ->{					
-					record.setName(request.getName());
-					var updated = repository.save(record);					
-					return ResponseEntity.ok().body(mapper.toResponse(updated));
-				})
-				.orElseThrow(() -> new ResourceNotFoundException("Person not found"));
-				
+	public ResponseEntity<PersonResponse> update(@PathVariable @Min(1) long id,
+			@Valid @RequestBody PersonRequest request) {
+
+		var updated = service.update(id, request);
+
+		return ResponseEntity.ok().body(mapper.toResponse(updated));
 	}
-	
+
 	@PatchMapping("/{id}/activate")
-	public ResponseEntity<PersonResponse> activate(@PathVariable long id){
-		
-		return repository.findById(id)
-				.map(record ->{					
-					record.setActive(true);
-					var updated = repository.save(record);					
-					return ResponseEntity.ok().body(mapper.toResponse(updated));
-				})
-				.orElseThrow(() -> new ResourceNotFoundException("Person not found"));
-				
+	public ResponseEntity<PersonResponse> activate(@PathVariable long id) {
+
+		var updated = service.activate(id);
+
+		return ResponseEntity.ok().body(mapper.toResponse(updated));
 	}
-	
+
 	@PatchMapping("/{id}/inactivate")
-	public ResponseEntity<PersonResponse> inactivate(@PathVariable long id){
-		
-		return repository.findById(id)
-				.map(record ->{					
-					record.setActive(false);
-					var updated = repository.save(record);					
-					return ResponseEntity.ok().body(mapper.toResponse(updated));
-				})
-				.orElseThrow(() -> new ResourceNotFoundException("Person not found"));
-				
+	public ResponseEntity<PersonResponse> inactivate(@PathVariable long id) {
+
+		var updated = service.inactivate(id);
+
+		return ResponseEntity.ok().body(mapper.toResponse(updated));
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

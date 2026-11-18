@@ -1,8 +1,6 @@
 package com.leandro.monthly_budget.controller;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -14,14 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.leandro.monthly_budget.model.exceptions.DuplicateResourceException;
-import com.leandro.monthly_budget.model.exceptions.ResourceNotFoundException;
-
 import com.leandro.monthly_budget.model.dtos.requests.TagRequest;
 import com.leandro.monthly_budget.model.dtos.requests.enums.StatusRequest;
 import com.leandro.monthly_budget.model.dtos.responses.TagResponse;
 import com.leandro.monthly_budget.model.mappers.TagMapper;
-import com.leandro.monthly_budget.model.repositories.TagRepository;
+import com.leandro.monthly_budget.model.services.interfaces.TagService;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -31,12 +26,12 @@ import jakarta.validation.constraints.Min;
 @RequestMapping(value = "/api/v1/tags")
 public class TagsController {
 
-	private TagRepository repository;
+	private TagService service;
 	private TagMapper mapper;
 
-	public TagsController(TagRepository repository, TagMapper mapper) {
+	public TagsController(TagService service, TagMapper mapper) {
 		super();
-		this.repository = repository;
+		this.service = service;
 		this.mapper = mapper;
 	}
 
@@ -45,72 +40,47 @@ public class TagsController {
 			@RequestParam(defaultValue = "1") @Min(1) int page,
 			@RequestParam(defaultValue = "20") @Min(1) @Max(50) int size,
 			@RequestParam(defaultValue = "ALL") StatusRequest status) {
-		
-		Pageable pageable = PageRequest.of(page -1, size);
-		
-		var tags = status == StatusRequest.ALL 
-				? repository.findAll(pageable)
-				: repository.findAllByStatus(status == StatusRequest.ACTIVE, pageable);
-		
-		return tags.map(mapper::toResponse);		
+
+		return service.getAll(page, size, status).map(mapper::toResponse);
 	}
 
 	@GetMapping("/{id}")
 	public TagResponse getById(@PathVariable @Min(1) long id) {
-
-		return repository.findById(id).map(mapper::toResponse)
-		.orElseThrow(() -> new ResourceNotFoundException("Tag not found"));
+		return mapper.toResponse(service.getById(id));
 	}
 
 	@PostMapping
 	public ResponseEntity<TagResponse> create(@Valid @RequestBody TagRequest request) {
 
-		if (repository.existsByName(request.getName())) {
-			throw new DuplicateResourceException("Already exists a tag with this name");
-		}
+		var created = service.create(request);
 
-		var created = repository.save(mapper.toEntity(request));
-		return ResponseEntity.created(null).body(mapper.toResponse(created));
+		return ResponseEntity
+				.created(null)
+				.body(mapper.toResponse(created));
 	}
-	
+
 	@PutMapping("/{id}")
-	public ResponseEntity<TagResponse> update(@PathVariable @Min(1) long id, 
-		@Valid @RequestBody TagRequest request){
-		
-		return repository.findById(id)
-				.map(record ->{
-					
-					record.setName(request.getName());
-					var updated = repository.save(record);
-					return ResponseEntity.ok().body(mapper.toResponse(updated));
-					
-				}).orElseThrow(() -> new ResourceNotFoundException("Tag not found"));
-	}	
+	public ResponseEntity<TagResponse> update(@PathVariable @Min(1) long id,
+			@Valid @RequestBody TagRequest request) {
+
+		var updated = service.update(id, request);
+
+		return ResponseEntity.ok().body(mapper.toResponse(updated));
+	}
 
 	@PatchMapping("/{id}/activate")
-	public ResponseEntity<TagResponse> activate(@PathVariable @Min(1) long id){
-		
-		return repository.findById(id)
-				.map(record ->{
-					
-					record.setActive(true);
-					var updated = repository.save(record);
-					return ResponseEntity.ok().body(mapper.toResponse(updated));
-					
-				}).orElseThrow(() -> new ResourceNotFoundException("Tag not found"));
+	public ResponseEntity<TagResponse> activate(@PathVariable @Min(1) long id) {
+
+		var updated = service.activate(id);
+
+		return ResponseEntity.ok().body(mapper.toResponse(updated));
 	}
-	
+
 	@PatchMapping("/{id}/inactivate")
-	public ResponseEntity<TagResponse> inactivate(@PathVariable @Min(1) long id){
-		
-		return repository.findById(id)
-				.map(record ->{
-					
-					record.setActive(false);
-					var updated = repository.save(record);
-					return ResponseEntity.ok().body(mapper.toResponse(updated));
-					
-				}).orElseThrow(() -> new ResourceNotFoundException("Tag not found"));
+	public ResponseEntity<TagResponse> inactivate(@PathVariable @Min(1) long id) {
+
+		var updated = service.inactivate(id);
+
+		return ResponseEntity.ok().body(mapper.toResponse(updated));
 	}
-	
 }
