@@ -3,14 +3,12 @@ package com.leandro.monthly_budget.model.entities;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name="people")
@@ -24,6 +22,4 @@ public class Person extends EntityBase {
 	
 	@Column(nullable = false, length = 80, unique = true)
 	private String name;
-
-	private boolean active = true;
 }

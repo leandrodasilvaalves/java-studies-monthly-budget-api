@@ -53,8 +53,6 @@ public class CreditCardSubscriptions extends EntityBase {
 	@Column(nullable = false, precision = 15, scale = 2)
 	private BigDecimal amount;
 
-	private boolean active = true;
-
 	@ManyToMany
 	@JoinTable(
 		name = "credit_card_subscription_tags",

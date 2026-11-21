@@ -50,9 +50,6 @@ public class CreditCardBill extends EntityBase {
 	)
 	private List<CreditCardSubscriptions> subscriptions;
 
-	@Column(nullable = false)
-	private boolean active = true;
-
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false, length = 20)
 	private CreditCardBillStatus status;

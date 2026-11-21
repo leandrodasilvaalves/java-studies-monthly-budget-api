@@ -17,6 +17,4 @@ public class CreditCard extends EntityBase{
 	
 	@Column(nullable = false)
 	private int dueDay;	
-	
-	boolean active = true;
 }

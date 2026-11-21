@@ -64,9 +64,6 @@ public abstract class Transaction extends EntityBase {
 	@Column(name = "ignored", nullable = false)
 	private boolean ignore = false;
 
-	@Column(nullable = false)
-	private boolean active = true;
-
 	@Column(length = 1000)
 	private String notes;
 }

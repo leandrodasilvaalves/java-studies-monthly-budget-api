@@ -50,7 +50,4 @@ public class Category extends EntityBase{
 		cascade = CascadeType.ALL
 	)
 	private List<Subcategory> subcategories;    
-	
-	private boolean active = true;
-	
 }

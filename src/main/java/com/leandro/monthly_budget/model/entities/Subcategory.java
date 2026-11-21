@@ -6,14 +6,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "subcategories", 
@@ -35,6 +33,4 @@ public class Subcategory extends EntityBase {
 	@ManyToOne
 	@JoinColumn(name = "category_id", nullable = false)
 	private Category category;
-
-	private boolean active = true;
 }

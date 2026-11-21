@@ -39,4 +39,6 @@ public abstract class EntityBase {
 
 	@LastModifiedDate
 	private Instant updatedAt;
+
+	private boolean active = true;
 }

@@ -49,8 +49,6 @@ public class FixedExpense extends EntityBase {
 	@Column(nullable = false, precision = 15, scale = 2)
 	private BigDecimal amount;
 
-	private boolean active = true;
-
 	@ManyToMany
 	@JoinTable(
 		name = "fixed_expense_tags",

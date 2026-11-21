@@ -64,7 +64,5 @@ public class Project extends EntityBase {
 	@Enumerated(EnumType.STRING)
 	private ProjectType type;
 
-	private boolean active = true;
-
 	private String brokerageAccount;
 }
