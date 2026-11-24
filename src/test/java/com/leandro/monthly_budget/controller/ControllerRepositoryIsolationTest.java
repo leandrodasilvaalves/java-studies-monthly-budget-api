@@ -18,10 +18,14 @@ import com.leandro.monthly_budget.model.entities.Category;
 import com.leandro.monthly_budget.model.entities.CreditCard;
 import com.leandro.monthly_budget.model.entities.CreditCardBill;
 import com.leandro.monthly_budget.model.entities.CreditCardSubscription;
+import com.leandro.monthly_budget.model.entities.CreditCardTransaction;
+import com.leandro.monthly_budget.model.entities.ExpenseTransaction;
 import com.leandro.monthly_budget.model.entities.FixedExpense;
 import com.leandro.monthly_budget.model.entities.FixedIncome;
+import com.leandro.monthly_budget.model.entities.IncomeTransaction;
 import com.leandro.monthly_budget.model.entities.Person;
 import com.leandro.monthly_budget.model.entities.Project;
+import com.leandro.monthly_budget.model.entities.ProjectTransaction;
 import com.leandro.monthly_budget.model.entities.Subcategory;
 import com.leandro.monthly_budget.model.entities.Tag;
 import com.leandro.monthly_budget.model.services.AccountServiceImpl;
@@ -29,10 +33,14 @@ import com.leandro.monthly_budget.model.services.CategoryServiceImpl;
 import com.leandro.monthly_budget.model.services.CreditCardBillServiceImpl;
 import com.leandro.monthly_budget.model.services.CreditCardServiceImpl;
 import com.leandro.monthly_budget.model.services.CreditCardSubscriptionServiceImpl;
+import com.leandro.monthly_budget.model.services.CreditCardTransactionServiceImpl;
+import com.leandro.monthly_budget.model.services.ExpenseTransactionServiceImpl;
 import com.leandro.monthly_budget.model.services.FixedExpenseServiceImpl;
 import com.leandro.monthly_budget.model.services.FixedIncomeServiceImpl;
+import com.leandro.monthly_budget.model.services.IncomeTransactionServiceImpl;
 import com.leandro.monthly_budget.model.services.PersonServiceImpl;
 import com.leandro.monthly_budget.model.services.ProjectServiceImpl;
+import com.leandro.monthly_budget.model.services.ProjectTransactionServiceImpl;
 import com.leandro.monthly_budget.model.services.SubcategoryServiceImpl;
 import com.leandro.monthly_budget.model.services.TagServiceImpl;
 import com.leandro.monthly_budget.model.services.interfaces.AccountService;
@@ -40,10 +48,14 @@ import com.leandro.monthly_budget.model.services.interfaces.CategoryService;
 import com.leandro.monthly_budget.model.services.interfaces.CreditCardBillService;
 import com.leandro.monthly_budget.model.services.interfaces.CreditCardService;
 import com.leandro.monthly_budget.model.services.interfaces.CreditCardSubscriptionService;
+import com.leandro.monthly_budget.model.services.interfaces.CreditCardTransactionService;
+import com.leandro.monthly_budget.model.services.interfaces.ExpenseTransactionService;
 import com.leandro.monthly_budget.model.services.interfaces.FixedExpenseService;
 import com.leandro.monthly_budget.model.services.interfaces.FixedIncomeService;
+import com.leandro.monthly_budget.model.services.interfaces.IncomeTransactionService;
 import com.leandro.monthly_budget.model.services.interfaces.PersonService;
 import com.leandro.monthly_budget.model.services.interfaces.ProjectService;
+import com.leandro.monthly_budget.model.services.interfaces.ProjectTransactionService;
 import com.leandro.monthly_budget.model.services.interfaces.SubcategoryService;
 import com.leandro.monthly_budget.model.services.interfaces.TagService;
 
@@ -55,10 +67,14 @@ class ControllerRepositoryIsolationTest {
 			CreditCardBillsController.class,
 			CreditCardsController.class,
 			CreditCardSubscriptionsController.class,
+			CreditCardTransactionsController.class,
+			ExpensesController.class,
 			FixedExpensesController.class,
 			FixedIncomesController.class,
+			IncomesController.class,
 			PeopleController.class,
 			ProjectsController.class,
+			ProjectTransactionsController.class,
 			SubcategoriesController.class,
 			TagsController.class);
 
@@ -90,10 +106,18 @@ class ControllerRepositoryIsolationTest {
 		assertService(CreditCard.class, CreditCardService.class, CreditCardServiceImpl.class);
 		assertService(CreditCardSubscription.class, CreditCardSubscriptionService.class,
 				CreditCardSubscriptionServiceImpl.class);
+		assertService(CreditCardTransaction.class, CreditCardTransactionService.class,
+				CreditCardTransactionServiceImpl.class);
+		assertService(ExpenseTransaction.class, ExpenseTransactionService.class,
+				ExpenseTransactionServiceImpl.class);
 		assertService(FixedExpense.class, FixedExpenseService.class, FixedExpenseServiceImpl.class);
 		assertService(FixedIncome.class, FixedIncomeService.class, FixedIncomeServiceImpl.class);
+		assertService(IncomeTransaction.class, IncomeTransactionService.class,
+				IncomeTransactionServiceImpl.class);
 		assertService(Person.class, PersonService.class, PersonServiceImpl.class);
 		assertService(Project.class, ProjectService.class, ProjectServiceImpl.class);
+		assertService(ProjectTransaction.class, ProjectTransactionService.class,
+				ProjectTransactionServiceImpl.class);
 		assertService(Subcategory.class, SubcategoryService.class, SubcategoryServiceImpl.class);
 		assertService(Tag.class, TagService.class, TagServiceImpl.class);
 	}

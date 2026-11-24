@@ -1,5 +1,6 @@
 package com.leandro.monthly_budget.model.repositories;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -16,4 +17,12 @@ public interface CreditCardBillRepository extends JpaRepository<CreditCardBill, 
 
 	@Query("SELECT b FROM CreditCardBill b WHERE b.id = :id AND b.creditcard.id = :creditCardId")
 	Optional<CreditCardBill> findByIdAndCreditCardId(long id, long creditCardId);
+
+	@Query("""
+			SELECT b FROM CreditCardBill b
+			WHERE b.creditcard.id = :creditCardId
+			  AND b.dueDate BETWEEN :start AND :end
+			""")
+	Optional<CreditCardBill> findByCreditCardIdAndDueDateBetween(
+			long creditCardId, LocalDate start, LocalDate end);
 }

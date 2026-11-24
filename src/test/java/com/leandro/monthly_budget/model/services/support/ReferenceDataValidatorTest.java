@@ -26,6 +26,7 @@ import com.leandro.monthly_budget.model.repositories.AccountRepository;
 import com.leandro.monthly_budget.model.repositories.CategoryRepository;
 import com.leandro.monthly_budget.model.repositories.CreditCardRepository;
 import com.leandro.monthly_budget.model.repositories.PersonRepository;
+import com.leandro.monthly_budget.model.repositories.ProjectRepository;
 import com.leandro.monthly_budget.model.repositories.SubcategoryRepository;
 import com.leandro.monthly_budget.model.repositories.TagRepository;
 
@@ -38,6 +39,7 @@ class ReferenceDataValidatorTest {
 	@Mock private TagRepository tagRepository;
 	@Mock private CreditCardRepository creditCardRepository;
 	@Mock private AccountRepository accountRepository;
+	@Mock private ProjectRepository projectRepository;
 
 	@InjectMocks private ReferenceDataValidator validator;
 

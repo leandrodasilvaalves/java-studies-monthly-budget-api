@@ -1,5 +1,7 @@
 package com.leandro.monthly_budget.model.repositories;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -20,4 +22,15 @@ public interface CreditCardSubscriptionRepository extends JpaRepository<CreditCa
 
 	@Query("SELECT s FROM CreditCardSubscription s WHERE s.id = :id AND s.creditCard.id = :creditCardId")
 	Optional<CreditCardSubscription> findByIdAndCreditCardId(long id, long creditCardId);
+
+	@Query("""
+			SELECT s FROM CreditCardSubscription s
+			WHERE s.creditCard.id = :creditCardId
+			  AND s.active = true
+			  AND s.ignore = false
+			  AND s.startDate <= :end
+			  AND s.endDate >= :start
+			""")
+	List<CreditCardSubscription> findActiveByCreditCardIdAndPeriod(
+			long creditCardId, LocalDate start, LocalDate end);
 }

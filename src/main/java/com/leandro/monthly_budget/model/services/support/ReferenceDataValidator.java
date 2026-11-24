@@ -10,6 +10,7 @@ import com.leandro.monthly_budget.model.entities.Account;
 import com.leandro.monthly_budget.model.entities.Category;
 import com.leandro.monthly_budget.model.entities.CreditCard;
 import com.leandro.monthly_budget.model.entities.Person;
+import com.leandro.monthly_budget.model.entities.Project;
 import com.leandro.monthly_budget.model.entities.Subcategory;
 import com.leandro.monthly_budget.model.entities.Tag;
 import com.leandro.monthly_budget.model.enums.CategoryType;
@@ -19,6 +20,7 @@ import com.leandro.monthly_budget.model.repositories.AccountRepository;
 import com.leandro.monthly_budget.model.repositories.CategoryRepository;
 import com.leandro.monthly_budget.model.repositories.CreditCardRepository;
 import com.leandro.monthly_budget.model.repositories.PersonRepository;
+import com.leandro.monthly_budget.model.repositories.ProjectRepository;
 import com.leandro.monthly_budget.model.repositories.SubcategoryRepository;
 import com.leandro.monthly_budget.model.repositories.TagRepository;
 
@@ -38,6 +40,7 @@ public class ReferenceDataValidator {
 	private final TagRepository tagRepository;
 	private final CreditCardRepository creditCardRepository;
 	private final AccountRepository accountRepository;
+	private final ProjectRepository projectRepository;
 
 	public ReferenceDataValidator(
 			CategoryRepository categoryRepository,
@@ -45,13 +48,15 @@ public class ReferenceDataValidator {
 			PersonRepository personRepository,
 			TagRepository tagRepository,
 			CreditCardRepository creditCardRepository,
-			AccountRepository accountRepository) {
+			AccountRepository accountRepository,
+			ProjectRepository projectRepository) {
 		this.categoryRepository = categoryRepository;
 		this.subcategoryRepository = subcategoryRepository;
 		this.personRepository = personRepository;
 		this.tagRepository = tagRepository;
 		this.creditCardRepository = creditCardRepository;
 		this.accountRepository = accountRepository;
+		this.projectRepository = projectRepository;
 	}
 
 	public void requireRequest(Object request) {
@@ -149,6 +154,11 @@ public class ReferenceDataValidator {
 	public Account requireAccount(Long id) {
 		return accountRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+	}
+
+	public Project requireProject(Long id) {
+		return projectRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 	}
 
 	private static String label(CategoryType type) {
