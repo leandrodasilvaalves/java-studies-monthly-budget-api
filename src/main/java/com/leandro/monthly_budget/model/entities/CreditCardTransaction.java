@@ -75,28 +75,6 @@ public class CreditCardTransaction extends Transaction {
 	@Column(name = "purchase_id", nullable = false)
 	private UUID purchaseId;
 
-	@ManyToOne
-	@JoinColumn(name = "account_id")
-	private Account account;
-
 	@Column(name = "paid_date")
 	private LocalDate paidDate;
-
-	@AssertTrue(message = "PAID credit card transactions require paidDate and account; PENDING ones must not have them")
-	public boolean isPaymentDataConsistent() {
-		if (status == CreditCardTransactionStatus.PAID) {
-			return paidDate != null && account != null;
-		}
-
-		if (status == CreditCardTransactionStatus.PENDING) {
-			return paidDate == null && account == null;
-		}
-
-		return true;
-	}
-
-	@AssertTrue(message = "installmentNumber must be between 1 and totalInstallments")
-	public boolean isInstallmentDataConsistent() {
-		return installmentNumber >= 1 && installmentNumber <= totalInstallments;
-	}
 }

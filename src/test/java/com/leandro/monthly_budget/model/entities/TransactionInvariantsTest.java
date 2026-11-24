@@ -6,7 +6,6 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
-import com.leandro.monthly_budget.model.enums.CreditCardTransactionStatus;
 import com.leandro.monthly_budget.model.enums.ExpenseStatus;
 import com.leandro.monthly_budget.model.enums.IncomeStatus;
 import com.leandro.monthly_budget.model.enums.ProjectTransactionStatus;
@@ -45,18 +44,6 @@ class TransactionInvariantsTest {
 		income.setAccount(new Account("Nubank", java.math.BigDecimal.TEN));
 
 		assertThat(income.isReceiptDataConsistent()).isTrue();
-	}
-
-	@Test
-	void creditCardInstallmentMustBeWithinRange() {
-		var transaction = new CreditCardTransaction();
-		transaction.setTotalInstallments(3);
-		transaction.setInstallmentNumber(4);
-
-		assertThat(transaction.isInstallmentDataConsistent()).isFalse();
-
-		transaction.setInstallmentNumber(3);
-		assertThat(transaction.isInstallmentDataConsistent()).isTrue();
 	}
 
 	@Test

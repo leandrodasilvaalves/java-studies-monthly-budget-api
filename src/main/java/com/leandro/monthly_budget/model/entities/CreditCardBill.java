@@ -3,6 +3,7 @@ package com.leandro.monthly_budget.model.entities;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 import com.leandro.monthly_budget.model.enums.CreditCardBillStatus;
 
@@ -36,9 +37,6 @@ public class CreditCardBill extends EntityBase {
 	@Column(name = "due_date", nullable = false)
 	private LocalDate dueDate;
 
-	@Column(nullable = false, precision = 15, scale = 2)
-	private BigDecimal amount;
-
 	@OneToMany(mappedBy = "creditCardBill")
 	private List<CreditCardTransaction> transactions;
 
@@ -48,7 +46,7 @@ public class CreditCardBill extends EntityBase {
 		joinColumns = @JoinColumn(name = "credit_card_bill_id"),
 		inverseJoinColumns = @JoinColumn(name = "subscription_id")
 	)
-	private List<CreditCardSubscriptions> subscriptions;
+	private List<CreditCardSubscription> subscriptions;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false, length = 20)
@@ -58,6 +56,37 @@ public class CreditCardBill extends EntityBase {
 	private LocalDate paidDate;
 
 	@ManyToOne
-	@JoinColumn(name = "account_id")
-	private Account account;
+	@JoinColumn(name = "paid_from_account_id")
+	private Account paidFromAccount;
+	
+	
+	public BigDecimal getAmount() {
+		BigDecimal transactionsTotal = transactions == null ? BigDecimal.ZERO
+				: transactions.stream()
+						.filter(transaction -> !transaction.isIgnore())
+						.map(Transaction::getAmount)
+						.filter(Objects::nonNull)
+						.reduce(BigDecimal.ZERO, BigDecimal::add);
+
+		BigDecimal subscriptionsTotal = subscriptions == null ? BigDecimal.ZERO
+				: subscriptions.stream()
+						.filter(CreditCardSubscription::isActive)
+						.filter(subscription -> !subscription.isIgnore())
+						.map(CreditCardSubscription::getAmount)
+						.filter(Objects::nonNull)
+						.reduce(BigDecimal.ZERO, BigDecimal::add);
+
+		return transactionsTotal.add(subscriptionsTotal);
+	}
+	
+	public boolean hasEntries() {
+		boolean hasTransactions = transactions != null
+				&& transactions.stream().anyMatch(transaction -> !transaction.isIgnore());
+		
+		boolean hasSubscriptions = subscriptions != null
+				&& subscriptions.stream().anyMatch(
+						subscription -> subscription.isActive() && !subscription.isIgnore());
+
+		return hasTransactions || hasSubscriptions;
+	}
 }

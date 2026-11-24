@@ -69,6 +69,28 @@ class ControllerValidationTest {
 				.andExpect(jsonPath("$.title").value("Validation failed"));
 	}
 
+	@Test
+	void invalidPageOnCreditCardBillsIsRejected() throws Exception {
+		mockMvc.perform(get("/api/v1/creditcards/1/bills").param("page", "0"))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.title").value("Validation failed"))
+				.andExpect(jsonPath("$.errors[?(@.field == 'page')]").exists());
+	}
+
+	@Test
+	void invalidCreditCardBillIdIsRejected() throws Exception {
+		mockMvc.perform(get("/api/v1/creditcards/1/bills/0"))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.title").value("Validation failed"));
+	}
+
+	@Test
+	void unknownCreditCardBillsReturnNotFound() throws Exception {
+		mockMvc.perform(get("/api/v1/creditcards/999999/bills"))
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.title").value("Resource Not Found"));
+	}
+
 	private void postWithInvalidName(String url, String body) throws Exception {
 		mockMvc.perform(post(url)
 						.contentType(MediaType.APPLICATION_JSON)

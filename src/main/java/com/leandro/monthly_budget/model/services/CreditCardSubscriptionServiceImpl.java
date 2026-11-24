@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.leandro.monthly_budget.model.dtos.requests.CreditCardSubscriptionRequest;
 import com.leandro.monthly_budget.model.dtos.requests.enums.StatusRequest;
-import com.leandro.monthly_budget.model.entities.CreditCardSubscriptions;
+import com.leandro.monthly_budget.model.entities.CreditCardSubscription;
 import com.leandro.monthly_budget.model.enums.CategoryType;
 import com.leandro.monthly_budget.model.exceptions.ResourceNotFoundException;
 import com.leandro.monthly_budget.model.mappers.CreditCardSubscriptionMapper;
@@ -33,7 +33,7 @@ public class CreditCardSubscriptionServiceImpl implements CreditCardSubscription
 		this.validator = validator;
 	}
 
-	public Page<CreditCardSubscriptions> getAll(
+	public Page<CreditCardSubscription> getAll(
 			long creditCardId, int page, int size, StatusRequest status) {
 
 		validator.requireCreditCard(creditCardId);
@@ -47,12 +47,12 @@ public class CreditCardSubscriptionServiceImpl implements CreditCardSubscription
 		};
 	}
 
-	public CreditCardSubscriptions getById(long creditCardId, long id) {
+	public CreditCardSubscription getById(long creditCardId, long id) {
 		return subscriptionRepository.findByIdAndCreditCardId(id, creditCardId)
 				.orElseThrow(() -> new ResourceNotFoundException("Credit card subscription not found"));
 	}
 
-	public CreditCardSubscriptions create(long creditCardId, CreditCardSubscriptionRequest request) {
+	public CreditCardSubscription create(long creditCardId, CreditCardSubscriptionRequest request) {
 
 		validateRequest(request);
 
@@ -63,7 +63,7 @@ public class CreditCardSubscriptionServiceImpl implements CreditCardSubscription
 		return subscriptionRepository.save(subscription);
 	}
 
-	public CreditCardSubscriptions update(long creditCardId, long id, CreditCardSubscriptionRequest request) {
+	public CreditCardSubscription update(long creditCardId, long id, CreditCardSubscriptionRequest request) {
 
 		var subscription = getById(creditCardId, id);
 
@@ -84,7 +84,7 @@ public class CreditCardSubscriptionServiceImpl implements CreditCardSubscription
 		return subscriptionRepository.save(subscription);
 	}
 
-	public CreditCardSubscriptions activate(long creditCardId, long id) {
+	public CreditCardSubscription activate(long creditCardId, long id) {
 
 		var subscription = getById(creditCardId, id);
 		subscription.setActive(true);
@@ -92,7 +92,7 @@ public class CreditCardSubscriptionServiceImpl implements CreditCardSubscription
 		return subscriptionRepository.save(subscription);
 	}
 
-	public CreditCardSubscriptions inactivate(long creditCardId, long id) {
+	public CreditCardSubscription inactivate(long creditCardId, long id) {
 
 		var subscription = getById(creditCardId, id);
 		subscription.setActive(false);
@@ -107,7 +107,7 @@ public class CreditCardSubscriptionServiceImpl implements CreditCardSubscription
 	}
 
 	private void applyRelations(
-			CreditCardSubscriptions subscription, CreditCardSubscriptionRequest request) {
+			CreditCardSubscription subscription, CreditCardSubscriptionRequest request) {
 
 		var category = validator.requireCategory(
 				request.getCategoryId(), CategoryType.EXPENSE, "credit card subscriptions");

@@ -16,7 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.leandro.monthly_budget.model.entities.Account;
 import com.leandro.monthly_budget.model.entities.Category;
 import com.leandro.monthly_budget.model.entities.CreditCard;
-import com.leandro.monthly_budget.model.entities.CreditCardSubscriptions;
+import com.leandro.monthly_budget.model.entities.CreditCardBill;
+import com.leandro.monthly_budget.model.entities.CreditCardSubscription;
 import com.leandro.monthly_budget.model.entities.FixedExpense;
 import com.leandro.monthly_budget.model.entities.FixedIncome;
 import com.leandro.monthly_budget.model.entities.Person;
@@ -25,6 +26,7 @@ import com.leandro.monthly_budget.model.entities.Subcategory;
 import com.leandro.monthly_budget.model.entities.Tag;
 import com.leandro.monthly_budget.model.services.AccountServiceImpl;
 import com.leandro.monthly_budget.model.services.CategoryServiceImpl;
+import com.leandro.monthly_budget.model.services.CreditCardBillServiceImpl;
 import com.leandro.monthly_budget.model.services.CreditCardServiceImpl;
 import com.leandro.monthly_budget.model.services.CreditCardSubscriptionServiceImpl;
 import com.leandro.monthly_budget.model.services.FixedExpenseServiceImpl;
@@ -35,6 +37,7 @@ import com.leandro.monthly_budget.model.services.SubcategoryServiceImpl;
 import com.leandro.monthly_budget.model.services.TagServiceImpl;
 import com.leandro.monthly_budget.model.services.interfaces.AccountService;
 import com.leandro.monthly_budget.model.services.interfaces.CategoryService;
+import com.leandro.monthly_budget.model.services.interfaces.CreditCardBillService;
 import com.leandro.monthly_budget.model.services.interfaces.CreditCardService;
 import com.leandro.monthly_budget.model.services.interfaces.CreditCardSubscriptionService;
 import com.leandro.monthly_budget.model.services.interfaces.FixedExpenseService;
@@ -49,6 +52,7 @@ class ControllerRepositoryIsolationTest {
 	private static final List<Class<?>> CONTROLLERS = List.of(
 			AccountsController.class,
 			CategoriesController.class,
+			CreditCardBillsController.class,
 			CreditCardsController.class,
 			CreditCardSubscriptionsController.class,
 			FixedExpensesController.class,
@@ -82,8 +86,9 @@ class ControllerRepositoryIsolationTest {
 	void everyControllerBackedEntityHasItsOwnTransactionalService() {
 		assertService(Account.class, AccountService.class, AccountServiceImpl.class);
 		assertService(Category.class, CategoryService.class, CategoryServiceImpl.class);
+		assertService(CreditCardBill.class, CreditCardBillService.class, CreditCardBillServiceImpl.class);
 		assertService(CreditCard.class, CreditCardService.class, CreditCardServiceImpl.class);
-		assertService(CreditCardSubscriptions.class, CreditCardSubscriptionService.class,
+		assertService(CreditCardSubscription.class, CreditCardSubscriptionService.class,
 				CreditCardSubscriptionServiceImpl.class);
 		assertService(FixedExpense.class, FixedExpenseService.class, FixedExpenseServiceImpl.class);
 		assertService(FixedIncome.class, FixedIncomeService.class, FixedIncomeServiceImpl.class);

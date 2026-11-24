@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Table(name = "credit_card_subscriptions")
-public class CreditCardSubscriptions extends EntityBase {
+public class CreditCardSubscription extends EntityBase {
 
 	@ManyToOne
 	@JoinColumn(name = "credit_card_id", nullable = false)
