@@ -14,7 +14,10 @@ public interface SubcategoryRepository extends JpaRepository<Subcategory, Long>{
 	
 	@Query("SELECT COUNT(s) > 0 FROM Subcategory s WHERE s.name = :name AND s.category.id = :categoryId")
 	boolean existsByNameAndCategory(String name, Long categoryId);
-	
+
+	@Query("SELECT s FROM Subcategory s WHERE s.name = :name AND s.category.id = :categoryId")
+	Optional<Subcategory> findByNameAndCategoryId(String name, Long categoryId);
+
 	@Query("SELECT s FROM Subcategory s WHERE s.id= :id AND s.category.id = :categoryId")
 	Optional<Subcategory>  findByIdAndCategoryId(Long id, Long categoryId);
 	

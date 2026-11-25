@@ -1,5 +1,7 @@
 package com.leandro.monthly_budget.model.repositories;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,6 +13,9 @@ public interface CreditCardRepository extends JpaRepository<CreditCard, Long> {
 	
 	@Query("SELECT COUNT(c) > 0 FROM CreditCard c WHERE c.name = :name")
 	boolean existsByName(String name);
+
+	@Query("SELECT c FROM CreditCard c WHERE c.name = :name")
+	Optional<CreditCard> findByName(String name);
 	
 	@Query("SELECT c FROM CreditCard c WHERE c.active = :active")
 	Page<CreditCard> findAllByStatus(boolean active, Pageable pageable);

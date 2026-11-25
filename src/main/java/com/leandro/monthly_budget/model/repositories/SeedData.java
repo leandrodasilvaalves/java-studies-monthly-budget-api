@@ -1,6 +1,7 @@
 package com.leandro.monthly_budget.model.repositories;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -10,10 +11,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.leandro.monthly_budget.model.entities.Account;
 import com.leandro.monthly_budget.model.entities.Category;
+import com.leandro.monthly_budget.model.entities.CreditCard;
+import com.leandro.monthly_budget.model.entities.CreditCardSubscription;
+import com.leandro.monthly_budget.model.entities.FixedExpense;
+import com.leandro.monthly_budget.model.entities.FixedIncome;
 import com.leandro.monthly_budget.model.entities.Person;
+import com.leandro.monthly_budget.model.entities.Project;
 import com.leandro.monthly_budget.model.entities.Subcategory;
 import com.leandro.monthly_budget.model.entities.Tag;
 import com.leandro.monthly_budget.model.enums.CategoryType;
+import com.leandro.monthly_budget.model.enums.ProjectType;
 
 @Component
 public class SeedData {
@@ -24,16 +31,34 @@ public class SeedData {
 	private final TagRepository tagRepository;
 	private final PersonRepository personRepository;
 	private final AccountRepository accountRepository;
+	private final SubcategoryRepository subcategoryRepository;
+	private final FixedIncomeRepository fixedIncomeRepository;
+	private final FixedExpenseRepository fixedExpenseRepository;
+	private final ProjectRepository projectRepository;
+	private final CreditCardSubscriptionRepository creditCardSubscriptionRepository;
+	private final CreditCardRepository creditCardRepository;
 
 	public SeedData(
 			CategoryRepository categoryRepository,
 			TagRepository tagRepository,
 			PersonRepository personRepository,
-			AccountRepository accountRepository) {
+			AccountRepository accountRepository,
+			SubcategoryRepository subcategoryRepository,
+			FixedIncomeRepository fixedIncomeRepository,
+			FixedExpenseRepository fixedExpenseRepository,
+			ProjectRepository projectRepository,
+			CreditCardSubscriptionRepository creditCardSubscriptionRepository,
+			CreditCardRepository creditCardRepository) {
 		this.categoryRepository = categoryRepository;
 		this.tagRepository = tagRepository;
 		this.personRepository = personRepository;
 		this.accountRepository = accountRepository;
+		this.subcategoryRepository = subcategoryRepository;
+		this.fixedIncomeRepository = fixedIncomeRepository;
+		this.fixedExpenseRepository = fixedExpenseRepository;
+		this.projectRepository = projectRepository;
+		this.creditCardSubscriptionRepository = creditCardSubscriptionRepository;
+		this.creditCardRepository = creditCardRepository;
 	}
 
 	@Transactional
@@ -43,6 +68,11 @@ public class SeedData {
 		incluirTags(tagRepository);
 		incluirPessoas(personRepository);
 		incluirContas(accountRepository);
+		incluirCreditCards(creditCardRepository);
+		incluirProjetos();
+		incluirDespesasFixas();
+		incluirReceitasFixas();
+		incluirAssinaturasCartao();
 
 	}
 
@@ -316,5 +346,206 @@ public class SeedData {
 				acoes, criptoBitcoins, criptoOutras, fiis, previdencia,
 				reservaDeEmergencia, tesouroRenda2045));
 	}
-	
+
+	private void incluirCreditCards(CreditCardRepository repository) {
+		if (repository.findAll().size() <= 0) {
+			CreditCard nubank = new CreditCard();
+			nubank.setName("Nubank");
+			nubank.setDueDay(10);
+			List.of(nubank).forEach(card -> {
+				repository.save(card);
+				log.debug("Seeded {} {}", card.getClass().getSimpleName(), card.getId());
+			});
+		}
+	}
+
+	private void incluirProjetos() {
+		if (projectRepository.findAll().size() <= 0) {
+			LocalDate startDate = LocalDate.of(2026, 1, 1);
+			LocalDate endDate = LocalDate.of(2026, 12, 31);
+			Category categoria = requireCategory("👨‍🦱 Despesas Pessoais");
+			Subcategory subcategoria = requireSubcategory("Presentes", categoria);
+			Account conta = requireAccount("Nubank");
+
+			List.of(
+				newProject(categoria, "Aniversário Meire", subcategoria, List.of(requirePerson("Meire")), conta, startDate, endDate, new BigDecimal("100.00")),
+				newProject(categoria, "Aniversário Leandro", subcategoria, List.of(requirePerson("Leandro")), conta, startDate, endDate, new BigDecimal("100.00")),
+				newProject(categoria, "Aniversário Isa", subcategoria, List.of(requirePerson("Isa")), conta, startDate, endDate, new BigDecimal("100.00")),
+				newProject(categoria, "Aniversário Leo", subcategoria, List.of(requirePerson("Leo")), conta, startDate, endDate, new BigDecimal("100.00"))
+			).forEach(project -> {
+				projectRepository.save(project);
+				log.debug("Seeded {} {}", project.getClass().getSimpleName(), project.getId());
+			});
+		}
+	}
+
+	private Project newProject(Category category, String name, Subcategory subcategory, List<Person> people,
+			Account account, LocalDate firstDepositDate, LocalDate goalDate, BigDecimal plannedAmount) {
+		Project project = new Project();
+		project.setCategory(category);
+		project.setName(name);
+		project.setSubcategory(subcategory);
+		project.setPeople(people);
+		project.setAccount(account);
+		project.setFirstDepositDate(firstDepositDate);
+		project.setGoalDate(goalDate);
+		project.setPlannedAmount(plannedAmount);
+		project.setType(ProjectType.INDIVIDUAL);
+		project.setBrokerageAccount("");
+		return project;
+	}
+
+	private void incluirDespesasFixas() {
+		if (fixedExpenseRepository.findAll().size() <= 0) {
+			LocalDate startDate = LocalDate.of(2026, 1, 1);
+			LocalDate endDate = LocalDate.of(2026, 12, 31);
+
+			List.of(
+				newFixedExpense("🏠 Habitação", "Internet", "Alares", "", List.of("todos"), new BigDecimal("101.10"), startDate, endDate),
+				newFixedExpense("🏠 Habitação", "Conta de Energia", "Cosern", "", List.of("todos"), new BigDecimal("358.00"), startDate, endDate),
+				newFixedExpense("🏠 Habitação", "Conta de Água", "Caern", "", List.of("todos"), new BigDecimal("84.00"), startDate, endDate),
+				newFixedExpense("🏠 Habitação", "Prestação Fin Caixa", "Caixa", "", List.of("todos"), new BigDecimal("1150.00"), startDate, endDate),
+				newFixedExpense("📙 Educação", "Escola / Faculdade", "Esc. Peixoto", "", List.of("Leo", "Isa"), new BigDecimal("890.00"), startDate, endDate),
+				newFixedExpense("🏠 Habitação", "Telefones Celulares", "", "Claro", List.of("Leandro", "Meire"), new BigDecimal("149.99"), startDate, endDate),
+				newFixedExpense("🚘 Transporte", "Parcela", "C6 Bank", "financiamento", List.of("todos"), new BigDecimal("1300.00"), startDate, endDate),
+				newFixedExpense("👨‍🦱 Despesas Pessoais", "Mesadas", "", "Mesada Leo", List.of("Leo"), new BigDecimal("70.00"), startDate, endDate),
+				newFixedExpense("👨‍🦱 Despesas Pessoais", "Mesadas", "", "Mesada Leo", List.of("Isa"), new BigDecimal("100.00"), startDate, endDate)
+			).forEach(expense -> {
+				fixedExpenseRepository.save(expense);
+				log.debug("Seeded {} {}", expense.getClass().getSimpleName(), expense.getId());
+			});
+		}
+	}
+
+	private FixedExpense newFixedExpense(String categoryName, String subcategoryName, String store,
+			String description, List<String> personNames, BigDecimal amount,
+			LocalDate startDate, LocalDate endDate) {
+		Category category = requireCategoryByType(categoryName, CategoryType.EXPENSE);
+		Subcategory subcategory = requireSubcategory(subcategoryName, category);
+		List<Person> people = requirePeopleByNames(personNames);
+
+		FixedExpense expense = new FixedExpense();
+		expense.setCategory(category);
+		expense.setSubcategory(subcategory);
+		expense.setStore(store);
+		expense.setPeople(people);
+		expense.setDescription(description);
+		expense.setAmount(amount);
+		expense.setStartDate(startDate);
+		expense.setEndDate(endDate);
+		expense.setIgnore(false);
+		return expense;
+	}
+
+	private void incluirReceitasFixas() {
+		if (fixedIncomeRepository.findAll().size() <= 0) {
+			LocalDate startDate = LocalDate.of(2026, 1, 1);
+			LocalDate endDate = LocalDate.of(2026, 12, 31);
+			Category categoria = requireCategory("💰 Receitas Fixas");
+			Person recipient = requirePerson("Leandro");
+
+			List.of(
+				newFixedIncome("Salário Líquido", categoria, "Banky", recipient, "", new BigDecimal("50000.00"), startDate, endDate),
+				newFixedIncome("Vale Alimentação", categoria, "Bankly", recipient, "", new BigDecimal("4900.00"), startDate, endDate)
+			).forEach(income -> {
+				fixedIncomeRepository.save(income);
+				log.debug("Seeded {} {}", income.getClass().getSimpleName(), income.getId());
+			});
+		}
+	}
+
+	private FixedIncome newFixedIncome(String subcategoryName, Category category, String payer,
+			Person recipient, String description, BigDecimal amount,
+			LocalDate startDate, LocalDate endDate) {
+		Subcategory subcategory = requireSubcategory(subcategoryName, category);
+
+		FixedIncome income = new FixedIncome();
+		income.setCategory(category);
+		income.setSubcategory(subcategory);
+		income.setPayer(payer);
+		income.setRecipient(recipient);
+		income.setDescription(description);
+		income.setAmount(amount);
+		income.setStartDate(startDate);
+		income.setEndDate(endDate);
+		income.setIgnore(false);
+		return income;
+	}
+
+	private void incluirAssinaturasCartao() {
+		if (creditCardSubscriptionRepository.findAll().size() <= 0) {
+			LocalDate startDate = LocalDate.of(2026, 1, 1);
+			LocalDate endDate = LocalDate.of(2026, 12, 31);
+			Category categoria = requireCategory("🏠 Habitação");
+			Subcategory subcategory = requireSubcategory("Serviços Stream/Assinaturas", categoria);
+			CreditCard cartao = requireCreditCard("Nubank");
+			List<Person> people = requirePeopleByNames(List.of("todos"));
+
+			List.of(
+				newSubscription("Netflix", subcategory, cartao, people, "", new BigDecimal("40.90"), startDate, endDate),
+				newSubscription("Spotfiy", subcategory, cartao, people, "", new BigDecimal("28.90"), startDate, endDate)
+			).forEach(subscription -> {
+				creditCardSubscriptionRepository.save(subscription);
+				log.debug("Seeded {} {}", subscription.getClass().getSimpleName(), subscription.getId());
+			});
+		}
+	}
+
+	private CreditCardSubscription newSubscription(String store, Subcategory subcategory,
+			CreditCard creditCard, List<Person> people, String description,
+			BigDecimal amount, LocalDate startDate, LocalDate endDate) {
+		CreditCardSubscription subscription = new CreditCardSubscription();
+		subscription.setCreditCard(creditCard);
+		subscription.setCategory(subcategory.getCategory());
+		subscription.setSubcategory(subcategory);
+		subscription.setStore(store);
+		subscription.setPeople(people);
+		subscription.setDescription(description);
+		subscription.setAmount(amount);
+		subscription.setStartDate(startDate);
+		subscription.setEndDate(endDate);
+		subscription.setIgnore(false);
+		return subscription;
+	}
+
+	/* ---------- helpers de busca por nome (referencias ja semeadas) ---------- */
+
+	private Category requireCategory(String name) {
+		return categoryRepository.findByName(name)
+				.orElseThrow(() -> new IllegalStateException("Categoria nao encontrada no seed: " + name));
+	}
+
+	private Category requireCategoryByType(String name, CategoryType type) {
+		Category category = requireCategory(name);
+		if (category.getType() != type) {
+			throw new IllegalStateException("Categoria '" + name + "' nao eh do tipo " + type);
+		}
+		return category;
+	}
+
+	private Subcategory requireSubcategory(String name, Category category) {
+		return subcategoryRepository.findByNameAndCategoryId(name, category.getId())
+				.orElseThrow(() -> new IllegalStateException(
+						"Subcategoria nao encontrada no seed: " + name + " em " + category.getName()));
+	}
+
+	private Person requirePerson(String name) {
+		return personRepository.findByName(name)
+				.orElseThrow(() -> new IllegalStateException("Pessoa nao encontrada no seed: " + name));
+	}
+
+	private List<Person> requirePeopleByNames(List<String> names) {
+		return names.stream().map(this::requirePerson).toList();
+	}
+
+	private Account requireAccount(String name) {
+		return accountRepository.findByName(name)
+				.orElseThrow(() -> new IllegalStateException("Conta nao encontrada no seed: " + name));
+	}
+
+	private CreditCard requireCreditCard(String name) {
+		return creditCardRepository.findByName(name)
+				.orElseThrow(() -> new IllegalStateException("Cartao nao encontrado no seed: " + name));
+	}
+
 }
